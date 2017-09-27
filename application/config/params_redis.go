@@ -3,7 +3,7 @@ package config
 import (
 	"net/url"
 
-	"github.com/ameteiko/golang-kit/errors"
+	"github.com/ameteiko/errors"
 	"strings"
 )
 
@@ -11,9 +11,8 @@ import (
 // GetRedisConnectionInfo returns redis connection info object.
 //
 func (c *Config) GetRedisConnectionInfo() RedisConnectionInfoProvider {
-	config := c.parameters[ConfigRedis].(RedisConnectionInfoProvider)
 
-	return config
+	return c.parameters[ConfigRedis].(RedisConnectionInfoProvider)
 }
 
 //
@@ -37,10 +36,10 @@ type RedisConnectionInfo struct {
 // RedisConnectionInfoProvider declares all the connection info getters.
 //
 type RedisConnectionInfoProvider interface {
-	ParseConnectionString(string) error
-
 	GetHost() string
 	GetPort() string
+
+	ParameterInfoProvider
 }
 
 //
@@ -66,26 +65,30 @@ func (c *RedisConnectionInfo) validate() error {
 	connectionString := c.GetValue()
 
 	if "" == connectionString {
+
 		return ErrRedisConnectionStringIsEmpty
 	}
 
 	if connectionInfo, err = url.Parse(connectionString); nil != err {
-		return errors.Wrapf(
+
+		return errors.WrapError(
 			err,
-			`incorrect redis connection string (%s)`,
-			connectionString,
+			errors.Errorf(`incorrect redis connection string (%s)`, connectionString),
+			ErrRedisConnectionStringIsIncorrect,
 		)
 	}
 
 	if _, err := validateConnectionProtocolClause(connectionInfo, RedisConnectionProtocol); nil != err {
-		return errors.Wrapf(
+
+		return errors.WrapError(
 			err,
-			`incorrect protocol value for connection string (%s)`,
-			connectionString,
+			errors.Errorf(`incorrect protocol value for connection string (%s)`, connectionString),
+			ErrRedisProtocolIsIncorrect,
 		)
 	}
 
 	if c.host, err = validateRedisHostClause(connectionInfo); nil != err {
+
 		return errors.Wrapf(
 			err,
 			`incorrect host value for connection string (%s)`,
@@ -94,10 +97,11 @@ func (c *RedisConnectionInfo) validate() error {
 	}
 
 	if c.port, err = validateRedisPortClause(connectionInfo); nil != err {
-		return errors.Wrapf(
+
+		return errors.WrapError(
 			err,
-			`incorrect port value for connection string (%s)`,
-			connectionString,
+			errors.Errorf(`incorrect port value for connection string (%s)`, connectionString),
+			ErrRedisPortIsEmpty,
 		)
 	}
 
@@ -111,6 +115,7 @@ func validateRedisHostClause(url *url.URL) (string, error) {
 	host := strings.Split(url.Host, ":")[0]
 
 	if "" == host {
+
 		return "", ErrRedisHostIsEmpty
 	}
 
@@ -123,6 +128,7 @@ func validateRedisHostClause(url *url.URL) (string, error) {
 func validateRedisPortClause(url *url.URL) (string, error) {
 	port := url.Port()
 	if "" == port {
+
 		return "", ErrRedisPortIsEmpty
 	}
 

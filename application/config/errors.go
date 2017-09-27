@@ -15,25 +15,30 @@ var (
 // Cassandra errors.
 //
 var (
-	ErrCassandraConnectionStringIsEmpty = errors.NewError("cassandra connection string is empty")
-	ErrCassandraProtocolIsIncorrect     = errors.NewError("cassandra connection protocol is incorrect")
-	ErrCassandraHostsAreEmpty           = errors.NewError("cassandra hosts are empty")
-	ErrCassandraKeyspaceIsEmpty         = errors.NewError("cassandra cassandraKeyspace is empty")
-	ErrCassandraPasswordIsEmpty         = errors.NewError("cassandra cassandraPassword cannot be empty if cassandraUsername was set")
+	ErrCassandraConnectionStringIsEmpty     = errors.NewError("cassandra connection string is empty")
+	ErrCassandraConnectionStringIsIncorrect = errors.NewError("cassandra connection string is incorrect")
+	ErrCassandraProtocolIsIncorrect         = errors.NewError("cassandra connection protocol is incorrect")
+	ErrCassandraHostsAreEmpty               = errors.NewError("cassandra hosts are empty")
+	ErrCassandraKeyspaceIsEmpty             = errors.NewError("cassandra cassandraKeyspace is empty")
+	ErrCassandraPasswordIsEmpty             = errors.NewError("cassandra password cannot be empty if username was set")
 )
 
 //
 // Redis errors.
 //
 var (
-	ErrRedisConnectionStringIsEmpty = errors.NewError("redis connection string is empty")
-	ErrRedisHostIsEmpty             = errors.NewError("redis host is empty")
-	ErrRedisPortIsEmpty             = errors.NewError("redis port is empty")
+	ErrRedisConnectionStringIsEmpty     = errors.NewError("redis connection string is empty")
+	ErrRedisConnectionStringIsIncorrect = errors.NewError("redis connection string is incorrect")
+	ErrRedisProtocolIsIncorrect         = errors.NewError("redis connection protocol is incorrect")
+	ErrRedisHostIsEmpty                 = errors.NewError("redis host is empty")
+	ErrRedisPortIsEmpty                 = errors.NewError("redis port is empty")
 )
 
 //
-// URL errors
+// URL errors.
 //
 var (
-//ErrConnectionStringIsEmpty           = errors.NewError("database connection string is empty")
+	ErrURLIncorrectValue = errors.NewError("URL configuration parameter is incorrect")
+	ErrBase64IncorrectValue = errors.NewError("parameter is not a base64-encoded string")
 )
+

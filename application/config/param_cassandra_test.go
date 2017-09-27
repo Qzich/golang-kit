@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/ameteiko/golang-kit/test/helper"
 )
 
 //
@@ -25,16 +27,18 @@ func TestCassandraParseConnectionString_WithAnEmptyString_ReturnsAnError(t *test
 	err := ci.validate()
 
 	assert.Error(t, err)
-	assert.Equal(t, ErrCassandraConnectionStringIsEmpty, err)
+	helper.AssertError(t, ErrCassandraConnectionStringIsEmpty, err)
 }
 
 func TestCassandraParseConnectionString_WithAnIncorrectConnectionString_ReturnsAnError(t *testing.T) {
+	incorrectConnectionString := "*:?//"
 	ci := new(CassandraConnectionInfo)
-	ci.value = "Incorrect connection string"
+	ci.value = incorrectConnectionString
 
 	err := ci.validate()
 
 	assert.Error(t, err)
+	helper.AssertError(t, ErrCassandraConnectionStringIsIncorrect, err)
 }
 
 func TestCassandraParseConnectionString_WithAnEmptyURLScheme_ReturnsAnError(t *testing.T) {
@@ -44,7 +48,7 @@ func TestCassandraParseConnectionString_WithAnEmptyURLScheme_ReturnsAnError(t *t
 	err := ci.validate()
 
 	assert.Error(t, err)
-	//helper.AssertError(t, ErrConnectionStringSchemeIsIncorrect, err)
+	helper.AssertError(t, ErrCassandraProtocolIsIncorrect, err)
 }
 
 func TestCassandraParseConnectionString_WithAnIncorrectURLScheme_ReturnsAnError(t *testing.T) {
@@ -54,7 +58,7 @@ func TestCassandraParseConnectionString_WithAnIncorrectURLScheme_ReturnsAnError(
 	err := ci.validate()
 
 	assert.Error(t, err)
-	//helper.AssertError(t, ErrConnectionStringSchemeIsIncorrect, err)
+	helper.AssertError(t, ErrCassandraProtocolIsIncorrect, err)
 }
 
 func TestCassandraParseConnectionString_WithAnEmptyKeyspace_ReturnsAnError(t *testing.T) {
@@ -64,12 +68,12 @@ func TestCassandraParseConnectionString_WithAnEmptyKeyspace_ReturnsAnError(t *te
 	err := ci.validate()
 
 	assert.Error(t, err)
-	//helper.AssertError(t, ErrConnectionStringKeyspaceIsEmpty, err)
+	helper.AssertError(t, ErrCassandraKeyspaceIsEmpty, err)
 }
 
 func TestCassandraParseConnectionString_WithACorrectConnectionString_Passes(t *testing.T) {
 	ci := new(CassandraConnectionInfo)
-	ci.value = fmt.Sprintf("cassandra://%s/%s?cassandraDc=%s", cassandraHost1, cassandraKeyspace, cassandraDc)
+	ci.value = fmt.Sprintf("cassandra://%s/%s?dc=%s", cassandraHost1, cassandraKeyspace, cassandraDc)
 
 	err := ci.validate()
 
@@ -94,7 +98,7 @@ func TestCassandraParseConnectionString_WithAUserParameterButWithoutPasswordOne_
 	err := ci.validate()
 
 	assert.Error(t, err)
-	//helper.AssertError(t, ErrConnectionStringPasswordIsEmpty, err)
+	helper.AssertError(t, ErrCassandraPasswordIsEmpty, err)
 }
 
 func TestCassandraParseConnectionString_WithAnAuthParameters_Passes(t *testing.T) {

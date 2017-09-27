@@ -14,7 +14,7 @@ func TestRegisterHttpParser_WithParameters_PassesAndRegistersAParser(t *testing.
 	// Config object
 	config := NewConfig()
 
-	config.RegisterHTTPPortParser()
+	config.RegisterConfigParameter(ConfigHTTPPort)
 	errParsing := config.Parse()
 	port := config.GetParameterValue(ConfigHTTPPort)
 

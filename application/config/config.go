@@ -4,8 +4,9 @@
 package config
 
 import (
-	"github.com/namsral/flag"
 	"os"
+
+	"github.com/namsral/flag"
 )
 
 //
@@ -21,33 +22,36 @@ const (
 	ConfigHTTPPort
 	ConfigDevPortalURL
 	ConfigRedis
+	ConfigPrivateKey
+	ConfigPrivateKeyPassword
 )
 
 //
 // EnvParameters are the predefined configuration parameter types names.
 //
 var EnvParameters = map[Parameter]string{
-	ConfigCassandra:    "CASSANDRA",
-	ConfigHTTPPort:     "HTTP_PORT",
-	ConfigDevPortalURL: "URL_DEV_PORTAL",
-	ConfigRedis:        "REDIS",
+	ConfigCassandra:          "CASSANDRA",
+	ConfigHTTPPort:           "HTTP_PORT",
+	ConfigDevPortalURL:       "URL_DEV_PORTAL",
+	ConfigRedis:              "REDIS",
+	ConfigPrivateKey:         "PRIVATE_KEY",
+	ConfigPrivateKeyPassword: "PRIVATE_KEY_PASSWORD",
 }
 
 //
 // Configer interface provides a base interface for application configuration parameters.
 // It allows parameter registration and its value retrieval.
-// ITODO: Add named configuration parameters with string values.
 //
 type Configer interface {
 	//
 	// RegisterConfigParameter registers a predefined configuration parameter for the application.
 	//
-	RegisterConfigParameter(configurationParameter Parameter) *Config
+	RegisterConfigParameter(configurationParameter Parameter)
 
 	//
 	// GetParameterValue returns a string parameter value.
 	//
-	GetParameter(parameter Parameter) (string, error)
+	GetParameterValue(parameter Parameter) string
 }
 
 //
@@ -63,12 +67,17 @@ type ConfigParametersRetriever interface {
 	//
 	// GetRedisConnectionInfo returns a Redis connection info.
 	//
-	GetRedisConnectionInfo() CassandraConnectionInfoProvider
+	GetRedisConnectionInfo() RedisConnectionInfoProvider
 
 	//
-	// Returns a Development Portal URL
+	// Returns a private key info.
 	//
-	//GetDevPortalURL() string
+	GetPrivateKeyInfo() Base64StringInfoProvider
+
+	//
+	// Returns a private key password info.
+	//
+	GetPrivateKeyPasswordInfo() Base64StringInfoProvider
 }
 
 //
@@ -147,7 +156,16 @@ func getConfigParameterEntry(parameter Parameter) ParameterInfoProvider {
 	switch parameter {
 	case ConfigCassandra:
 		return &CassandraConnectionInfo{StringParameter: StringParameter{name: parameterName}}
+	case ConfigRedis:
+		return &RedisConnectionInfo{StringParameter: StringParameter{name: parameterName}}
+	case ConfigDevPortalURL:
+		return &URLInfo{StringParameter: StringParameter{name: parameterName}}
+	case ConfigPrivateKey:
+	case ConfigPrivateKeyPassword:
+		return &Base64StringInfo{StringParameter: StringParameter{name: parameterName}}
 	default:
 		return &StringParameter{name: parameterName}
 	}
+
+	return nil
 }

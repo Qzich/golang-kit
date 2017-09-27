@@ -9,13 +9,14 @@ import (
 //
 // validateCassandraConnectionProtocolClause validates the connection protocol clause.
 //
-func validateConnectionProtocolClause(url *url.URL, protocol string) (string, error) {
+func validateConnectionProtocolClause(url *url.URL, expectedProtocol string) (string, error) {
 	scheme := url.Scheme
-	if protocol != scheme {
-		return "", errors.Wrapf(
-			ErrCassandraProtocolIsIncorrect,
-			`database connection protocol validation failed for (%s)`,
+	if expectedProtocol != scheme {
+
+		return "", errors.Errorf(
+			`connection protocol (%s) value is not (%s)`,
 			scheme,
+			expectedProtocol,
 		)
 	}
 

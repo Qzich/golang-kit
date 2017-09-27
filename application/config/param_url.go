@@ -3,62 +3,33 @@ package config
 import (
 	"net/url"
 
-	"github.com/ameteiko/golang-kit/errors"
+	"github.com/ameteiko/errors"
 )
-
-//
-// RegisterDevPortalURLParser registers a dev portal URL config parser.
-//
-func (c *Config) RegisterDevPortalURLParser() {
-	c.RegisterConfigParameter(ConfigDevPortalURL)
-}
 
 //
 // URLInfo is a URL config parameter.
 //
 type URLInfo struct {
 	StringParameter
-
-	hosts      []string
-	keyspace   string
-	dataCenter string
-	user       string
-	password   string
 }
 
 //
-// URLInfoProvider declares all the URL getters.
-//
-type URLInfoProvider interface {
-	//
-	// GetURL returns the URL value.
-	//
-	GetURL() string
-}
-
-//
-// GetURL returns the URL value.
-//
-func (c *URLInfo) GetURL() string {
-	return c.GetValue()
-}
-
-//
-// validate validates the cassandra connection string parameter.
+// validate validates the URL config parameter.
 //
 func (c *URLInfo) validate() error {
+	if err := c.StringParameter.validate(); nil != err {
+
+		return err
+	}
 	var err error
-	//urlParameter := c.GetValue()
+	urlValue := c.GetValue()
 
-	//if "" == urlParameter {
-	//	return ErrConnectionStringIsEmpty
-	//}
+	if _, err = url.Parse(urlValue); nil != err {
 
-	if _, err = url.Parse(c.GetValue()); nil != err {
-		return errors.Wrapf(
+		return errors.WrapError(
 			err,
-			`incorrect database connection string (%s)`,
-			c.GetValue(),
+			errors.Errorf(`incorrect URL value (%s)`, urlValue),
+			ErrURLIncorrectValue,
 		)
 	}
 

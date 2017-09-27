@@ -71,11 +71,3 @@ func (p *StringParameter) validate() error {
 
 	return nil
 }
-
-//
-// RegisterHTTPPortParser registers an HTTP port config parser.
-//
-func (c *Config) RegisterHTTPPortParser() {
-
-	c.RegisterConfigParameter(ConfigHTTPPort)
-}

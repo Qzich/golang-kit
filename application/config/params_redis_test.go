@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/ameteiko/golang-kit/test/helper"
 )
 
 //
@@ -21,16 +23,18 @@ func TestRedisParseConnectionString_WithAnEmptyString_ReturnsAnError(t *testing.
 	err := ri.validate()
 
 	assert.Error(t, err)
-	assert.Equal(t, ErrRedisConnectionStringIsEmpty, err)
+	helper.AssertError(t, ErrRedisConnectionStringIsEmpty, err)
 }
 
 func TestRedisParseConnectionString_WithAnIncorrectConnectionString_ReturnsAnError(t *testing.T) {
+	incorrectConnectionString := "*:?//"
 	ri := new(RedisConnectionInfo)
-	ri.value = "Incorrect connection string"
+	ri.value = incorrectConnectionString
 
 	err := ri.validate()
 
 	assert.Error(t, err)
+	helper.AssertError(t, ErrRedisConnectionStringIsIncorrect, err)
 }
 
 func TestRedisParseConnectionString_WithAnEmptyURLScheme_ReturnsAnError(t *testing.T) {
@@ -40,7 +44,7 @@ func TestRedisParseConnectionString_WithAnEmptyURLScheme_ReturnsAnError(t *testi
 	err := ri.validate()
 
 	assert.Error(t, err)
-	//helper.AssertError(t, ErrConnectionStringSchemeIsIncorrect, err)
+	helper.AssertError(t, ErrRedisProtocolIsIncorrect, err)
 }
 
 func TestRedisParseConnectionString_WithAnIncorrectURLScheme_ReturnsAnError(t *testing.T) {
@@ -50,7 +54,7 @@ func TestRedisParseConnectionString_WithAnIncorrectURLScheme_ReturnsAnError(t *t
 	err := ri.validate()
 
 	assert.Error(t, err)
-	//helper.AssertError(t, ErrConnectionStringSchemeIsIncorrect, err)
+	helper.AssertError(t, ErrRedisProtocolIsIncorrect, err)
 }
 
 func TestRedisParseConnectionString_WithAnEmptyPort_ReturnsAnError(t *testing.T) {
@@ -60,7 +64,7 @@ func TestRedisParseConnectionString_WithAnEmptyPort_ReturnsAnError(t *testing.T)
 	err := ri.validate()
 
 	assert.Error(t, err)
-	//helper.AssertError(t, ErrConnectionStringKeyspaceIsEmpty, err)
+	helper.AssertError(t, ErrRedisPortIsEmpty, err)
 }
 
 func TestRedisParseConnectionString_WithACorrectConnectionString_Passes(t *testing.T) {

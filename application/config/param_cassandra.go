@@ -4,15 +4,15 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/ameteiko/golang-kit/errors"
+	"github.com/ameteiko/errors"
 )
 
 //
 // GetCassandraConnectionInfo returns cassandra connection info object.
 //
 func (c *Config) GetCassandraConnectionInfo() CassandraConnectionInfoProvider {
-	config := c.parameters[ConfigCassandra].(CassandraConnectionInfoProvider)
-	return config
+
+	return c.parameters[ConfigCassandra].(CassandraConnectionInfoProvider)
 }
 
 //
@@ -39,8 +39,6 @@ type CassandraConnectionInfo struct {
 // CassandraConnectionInfoProvider declares all the connection info getters.
 //
 type CassandraConnectionInfoProvider interface {
-	ParseConnectionString(string) error
-
 	GetHosts() []string
 	GetKeyspace() string
 	GetDataCenter() string
@@ -49,6 +47,8 @@ type CassandraConnectionInfoProvider interface {
 
 	IsAuthorizationRequired() bool
 	IsDCAware() bool
+
+	ParameterInfoProvider
 }
 
 //
@@ -109,46 +109,52 @@ func (c *CassandraConnectionInfo) validate() error {
 	connectionString := c.GetValue()
 
 	if "" == connectionString {
+
 		return ErrCassandraConnectionStringIsEmpty
 	}
 
 	if connectionInfo, err = url.Parse(connectionString); nil != err {
-		return errors.Wrapf(
+
+		return errors.WrapError(
 			err,
-			`incorrect database connection string (%s)`,
-			connectionString,
+			errors.Errorf(`incorrect database connection string (%s)`, connectionString),
+			ErrCassandraConnectionStringIsIncorrect,
 		)
 	}
 
 	if _, err := validateConnectionProtocolClause(connectionInfo, CassandraConnectionProtocol); nil != err {
-		return errors.Wrapf(
+
+		return errors.WrapError(
 			err,
-			`incorrect protocol value for connection string (%s)`,
-			connectionString,
+			errors.Errorf(`incorrect protocol value for connection string (%s)`, connectionString),
+			ErrCassandraProtocolIsIncorrect,
 		)
 	}
 
 	if c.hosts, err = validateCassandraHostsClause(connectionInfo); nil != err {
-		return errors.Wrapf(
+
+		return errors.WrapError(
 			err,
-			`incorrect hosts value for connection string (%s)`,
-			connectionString,
+			errors.Errorf(`incorrect hosts value for connection string (%s)`, connectionString),
+			ErrCassandraHostsAreEmpty,
 		)
 	}
 
 	if c.keyspace, err = validateCassandraKeyspaceClause(connectionInfo); nil != err {
-		return errors.Wrapf(
+
+		return errors.WrapError(
 			err,
-			`incorrect cassandraKeyspace value for connection string (%s)`,
-			connectionString,
+			errors.Errorf(`incorrect cassandraKeyspace value for connection string (%s)`, connectionString),
+			ErrCassandraKeyspaceIsEmpty,
 		)
 	}
 
 	if c.user, c.password, err = validateCassandraAuthorizationClause(connectionInfo); nil != err {
-		return errors.Wrapf(
+
+		return errors.WrapError(
 			err,
-			`incorrect authorization info values for connection string (%s)`,
-			connectionString,
+			errors.Errorf(`incorrect authorization info values for connection string (%s)`, connectionString),
+			ErrCassandraPasswordIsEmpty,
 		)
 	}
 
@@ -163,6 +169,7 @@ func (c *CassandraConnectionInfo) validate() error {
 func validateCassandraHostsClause(url *url.URL) ([]string, error) {
 	hosts := strings.Split(url.Host, ",")
 	if 0 == len(hosts) {
+
 		return nil, ErrCassandraHostsAreEmpty
 	}
 
@@ -175,6 +182,7 @@ func validateCassandraHostsClause(url *url.URL) ([]string, error) {
 func validateCassandraKeyspaceClause(url *url.URL) (string, error) {
 	keyspace := strings.Trim(url.Path, "/")
 	if "" == keyspace {
+
 		return "", ErrCassandraKeyspaceIsEmpty
 	}
 
@@ -188,6 +196,7 @@ func validateCassandraAuthorizationClause(url *url.URL) (string, string, error) 
 	if url.User != nil {
 		pwd, exists := url.User.Password()
 		if !exists {
+
 			return "", "", ErrCassandraPasswordIsEmpty
 		}
 
@@ -202,6 +211,7 @@ func validateCassandraAuthorizationClause(url *url.URL) (string, string, error) 
 //
 func validateCassandraDCClause(url *url.URL) string {
 	if "" != url.Query().Get("dc") {
+
 		return url.Query().Get("dc")
 	}
 
