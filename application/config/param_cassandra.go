@@ -8,18 +8,18 @@ import (
 )
 
 //
-// RegisterCassandraParser registers a Cassandra config parser.
+// GetCassandraConnectionInfo returns cassandra connection info object.
 //
-func (c *Config) RegisterCassandraParser() {
-
-	c.RegisterConfigParameter(ConfigCassandra)
+func (c *Config) GetCassandraConnectionInfo() CassandraConnectionInfoProvider {
+	config := c.parameters[ConfigCassandra].(CassandraConnectionInfoProvider)
+	return config
 }
 
 //
-// Connection URL constants.
+// Cassandra connection URL constants.
 //
 const (
-	ConnectionProtocol = "cassandra"
+	CassandraConnectionProtocol = "cassandra"
 )
 
 //
@@ -59,7 +59,7 @@ func (c *CassandraConnectionInfo) GetHosts() []string {
 }
 
 //
-// GetKeyspace returns keyspace value.
+// GetKeyspace returns cassandraKeyspace value.
 //
 func (c *CassandraConnectionInfo) GetKeyspace() string {
 	return c.keyspace
@@ -80,7 +80,7 @@ func (c *CassandraConnectionInfo) GetUser() string {
 }
 
 //
-// GetPassword returns password value.
+// GetPassword returns cassandraPassword value.
 //
 func (c *CassandraConnectionInfo) GetPassword() string {
 	return c.password
@@ -109,7 +109,7 @@ func (c *CassandraConnectionInfo) validate() error {
 	connectionString := c.GetValue()
 
 	if "" == connectionString {
-		return ErrConnectionStringIsEmpty
+		return ErrCassandraConnectionStringIsEmpty
 	}
 
 	if connectionInfo, err = url.Parse(connectionString); nil != err {
@@ -120,7 +120,7 @@ func (c *CassandraConnectionInfo) validate() error {
 		)
 	}
 
-	if _, err := validateConnectionProtocolClause(connectionInfo); nil != err {
+	if _, err := validateConnectionProtocolClause(connectionInfo, CassandraConnectionProtocol); nil != err {
 		return errors.Wrapf(
 			err,
 			`incorrect protocol value for connection string (%s)`,
@@ -128,7 +128,7 @@ func (c *CassandraConnectionInfo) validate() error {
 		)
 	}
 
-	if c.hosts, err = validateHostsClause(connectionInfo); nil != err {
+	if c.hosts, err = validateCassandraHostsClause(connectionInfo); nil != err {
 		return errors.Wrapf(
 			err,
 			`incorrect hosts value for connection string (%s)`,
@@ -136,15 +136,15 @@ func (c *CassandraConnectionInfo) validate() error {
 		)
 	}
 
-	if c.keyspace, err = validateKeyspaceClause(connectionInfo); nil != err {
+	if c.keyspace, err = validateCassandraKeyspaceClause(connectionInfo); nil != err {
 		return errors.Wrapf(
 			err,
-			`incorrect keyspace value for connection string (%s)`,
+			`incorrect cassandraKeyspace value for connection string (%s)`,
 			connectionString,
 		)
 	}
 
-	if c.user, c.password, err = validateAuthorizationClause(connectionInfo); nil != err {
+	if c.user, c.password, err = validateCassandraAuthorizationClause(connectionInfo); nil != err {
 		return errors.Wrapf(
 			err,
 			`incorrect authorization info values for connection string (%s)`,
@@ -152,59 +152,43 @@ func (c *CassandraConnectionInfo) validate() error {
 		)
 	}
 
-	c.dataCenter = validateDCClause(connectionInfo)
+	c.dataCenter = validateCassandraDCClause(connectionInfo)
 
 	return nil
 }
 
 //
-// validateConnectionProtocolClause validates the connection protocol clause.
+// validateCassandraHostsClause validates the hosts clause.
 //
-func validateConnectionProtocolClause(url *url.URL) (string, error) {
-	scheme := url.Scheme
-	if ConnectionProtocol != scheme {
-		return "", errors.Wrapf(
-			ErrConnectionStringSchemeIsIncorrect,
-			`database connection protocol validation failed for (%s)`,
-			scheme,
-		)
-	}
-
-	return scheme, nil
-}
-
-//
-// validateHostsClause validates the hosts clause.
-//
-func validateHostsClause(url *url.URL) ([]string, error) {
+func validateCassandraHostsClause(url *url.URL) ([]string, error) {
 	hosts := strings.Split(url.Host, ",")
 	if 0 == len(hosts) {
-		return nil, ErrConnectionStringHostsAreEmpty
+		return nil, ErrCassandraHostsAreEmpty
 	}
 
 	return hosts, nil
 }
 
 //
-// validateKeyspaceClause validates the keyspace clause.
+// validateCassandraKeyspaceClause validates the cassandraKeyspace clause.
 //
-func validateKeyspaceClause(url *url.URL) (string, error) {
+func validateCassandraKeyspaceClause(url *url.URL) (string, error) {
 	keyspace := strings.Trim(url.Path, "/")
 	if "" == keyspace {
-		return "", ErrConnectionStringKeyspaceIsEmpty
+		return "", ErrCassandraKeyspaceIsEmpty
 	}
 
 	return keyspace, nil
 }
 
 //
-// validateAuthorizationClause validates the authorization clause.
+// validateCassandraAuthorizationClause validates the authorization clause.
 //
-func validateAuthorizationClause(url *url.URL) (string, string, error) {
+func validateCassandraAuthorizationClause(url *url.URL) (string, string, error) {
 	if url.User != nil {
 		pwd, exists := url.User.Password()
 		if !exists {
-			return "", "", ErrConnectionStringPasswordIsEmpty
+			return "", "", ErrCassandraPasswordIsEmpty
 		}
 
 		return url.User.Username(), pwd, nil
@@ -214,9 +198,9 @@ func validateAuthorizationClause(url *url.URL) (string, string, error) {
 }
 
 //
-// validateDCClause validates the data-center clause.
+// validateCassandraDCClause validates the data-center clause.
 //
-func validateDCClause(url *url.URL) string {
+func validateCassandraDCClause(url *url.URL) string {
 	if "" != url.Query().Get("dc") {
 		return url.Query().Get("dc")
 	}

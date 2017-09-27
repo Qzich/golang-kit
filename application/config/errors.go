@@ -15,11 +15,20 @@ var (
 // Cassandra errors.
 //
 var (
-	ErrConnectionStringIsEmpty           = errors.NewError("database connection string is empty")
-	ErrConnectionStringSchemeIsIncorrect = errors.NewError("database connection string protocol is incorrect")
-	ErrConnectionStringHostsAreEmpty     = errors.NewError("database hosts are not specified")
-	ErrConnectionStringKeyspaceIsEmpty   = errors.NewError("keyspace connection clause cannot be empty")
-	ErrConnectionStringPasswordIsEmpty   = errors.NewError("password clause cannot be empty if username was set")
+	ErrCassandraConnectionStringIsEmpty = errors.NewError("cassandra connection string is empty")
+	ErrCassandraProtocolIsIncorrect     = errors.NewError("cassandra connection protocol is incorrect")
+	ErrCassandraHostsAreEmpty           = errors.NewError("cassandra hosts are empty")
+	ErrCassandraKeyspaceIsEmpty         = errors.NewError("cassandra cassandraKeyspace is empty")
+	ErrCassandraPasswordIsEmpty         = errors.NewError("cassandra cassandraPassword cannot be empty if cassandraUsername was set")
+)
+
+//
+// Redis errors.
+//
+var (
+	ErrRedisConnectionStringIsEmpty = errors.NewError("redis connection string is empty")
+	ErrRedisHostIsEmpty             = errors.NewError("redis host is empty")
+	ErrRedisPortIsEmpty             = errors.NewError("redis port is empty")
 )
 
 //

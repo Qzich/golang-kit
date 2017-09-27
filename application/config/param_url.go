@@ -48,11 +48,11 @@ func (c *URLInfo) GetURL() string {
 //
 func (c *URLInfo) validate() error {
 	var err error
-	urlParameter := c.GetValue()
+	//urlParameter := c.GetValue()
 
-	if "" == urlParameter {
-		return ErrConnectionStringIsEmpty
-	}
+	//if "" == urlParameter {
+	//	return ErrConnectionStringIsEmpty
+	//}
 
 	if _, err = url.Parse(c.GetValue()); nil != err {
 		return errors.Wrapf(

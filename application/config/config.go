@@ -20,6 +20,7 @@ const (
 	ConfigCassandra Parameter = iota
 	ConfigHTTPPort
 	ConfigDevPortalURL
+	ConfigRedis
 )
 
 //
@@ -29,6 +30,7 @@ var EnvParameters = map[Parameter]string{
 	ConfigCassandra:    "CASSANDRA",
 	ConfigHTTPPort:     "HTTP_PORT",
 	ConfigDevPortalURL: "URL_DEV_PORTAL",
+	ConfigRedis:        "REDIS",
 }
 
 //
@@ -52,36 +54,21 @@ type Configer interface {
 // ConfigParametersDispatcher interface provides all syntax sugar for a configuration parameters registering and
 // retrieving. It's deliberately segregated into separate interface.
 //
-type ConfigParametersDispatcher interface {
-	//
-	// RegisterCassandraParser registers a Cassandra config parser.
-	// See all cassandra related functionality os in parameter_cassandra.go
-	//
-	RegisterCassandraParser() *Config
+type ConfigParametersRetriever interface {
 	//
 	// GetCassandraConnectionInfo returns a Cassandra connection info.
 	//
-	GetCassandraConnectionInfo() CassandraConnectionInfo
+	GetCassandraConnectionInfo() CassandraConnectionInfoProvider
 
 	//
-	// RegisterHTTPPortParser registers an HTTP port config parser.
-	// See all HTTP port related functionality os in parameter_string.go
+	// GetRedisConnectionInfo returns a Redis connection info.
 	//
-	RegisterHTTPPortParser() *Config
-	//
-	// GetHTTPPort returns HTTP port value.
-	//
-	GetHTTPPort() string
+	GetRedisConnectionInfo() CassandraConnectionInfoProvider
 
-	//
-	// RegisterDevPortalURLParser registers a dev portal URL config parser.
-	// See all Development Portal related functionality os in parameter_url.go
-	//
-	RegisterDevPortalURLParser() *Config
 	//
 	// Returns a Development Portal URL
 	//
-	GetDevPortalURL() string
+	//GetDevPortalURL() string
 }
 
 //
