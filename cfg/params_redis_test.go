@@ -1,4 +1,4 @@
-package config
+package cfg
 
 import (
 	"fmt"
@@ -55,6 +55,16 @@ func TestRedisParseConnectionString_WithAnIncorrectURLScheme_ReturnsAnError(t *t
 
 	assert.Error(t, err)
 	helper.AssertError(t, ErrRedisProtocolIsIncorrect, err)
+}
+
+func TestRedisParseConnectionString_WithAnEmptyHost_ReturnsAnError(t *testing.T) {
+	ri := new(RedisConnectionInfo)
+	ri.value = "redis://:3443"
+
+	err := ri.validate()
+
+	assert.Error(t, err)
+	helper.AssertError(t, ErrRedisHostIsEmpty, err)
 }
 
 func TestRedisParseConnectionString_WithAnEmptyPort_ReturnsAnError(t *testing.T) {

@@ -1,10 +1,11 @@
-package config
+package cfg
 
 import (
 	"fmt"
 	"strings"
 	"testing"
 
+	"github.com/ameteiko/golang-kit/test/helper"
 	"github.com/stretchr/testify/assert"
 	"github.com/subosito/gotenv"
 )
@@ -13,8 +14,8 @@ import (
 // Common variables.
 //
 var (
-	HTTPPortParameter  = EnvParameters[ConfigHTTPPort]
-	CassandraParameter = EnvParameters[ConfigCassandra]
+	HTTPAddressParameter = string(HTTPAddress)
+	CassandraParameter   = string(Cassandra)
 )
 
 func TestNewConfig_WithoutRegisteredParameters_Passes(t *testing.T) {
@@ -28,7 +29,7 @@ func TestNewConfig_WithoutRegisteredParameters_Passes(t *testing.T) {
 func TestRegisterConfigParameter_WithAValidParameter_RegistersAParameter(t *testing.T) {
 	config := NewConfig()
 
-	config.RegisterConfigParameter(ConfigHTTPPort)
+	config.Register(HTTPAddress)
 
 	assert.Equal(t, 1, len(config.parameters))
 }
@@ -36,8 +37,8 @@ func TestRegisterConfigParameter_WithAValidParameter_RegistersAParameter(t *test
 func TestRegisterConfigParameter_WithTwoValidParameters_RegistersBothParameters(t *testing.T) {
 	config := NewConfig()
 
-	config.RegisterConfigParameter(ConfigHTTPPort)
-	config.RegisterConfigParameter(ConfigCassandra)
+	config.Register(HTTPAddress)
+	config.Register(Cassandra)
 
 	assert.Equal(t, 2, len(config.parameters))
 }
@@ -45,8 +46,8 @@ func TestRegisterConfigParameter_WithTwoValidParameters_RegistersBothParameters(
 func TestRegisterConfigParameter_WithSequentialParameterRegistration_RegistersJustOneInstance(t *testing.T) {
 	config := NewConfig()
 
-	config.RegisterConfigParameter(ConfigHTTPPort)
-	config.RegisterConfigParameter(ConfigHTTPPort)
+	config.Register(HTTPAddress)
+	config.Register(HTTPAddress)
 
 	assert.Equal(t, 1, len(config.parameters))
 }
@@ -71,45 +72,47 @@ func TestParse_WithoutParameterRegistration_Passes(t *testing.T) {
 	assert.Empty(t, err)
 }
 
-func TestParse_WithAParameterRegistration_Passes(t *testing.T) {
+func TestParse_WithAParameterRegistration_ReturnsAnError(t *testing.T) {
 	config := NewConfig()
 
-	config.RegisterConfigParameter(ConfigHTTPPort)
+	config.Register(HTTPAddress)
 	err := config.Parse()
 
-	assert.Empty(t, err)
+	assert.Error(t, err)
+	helper.AssertError(t, ErrConfigParameterIsEmpty, err)
 }
 
 func TestGetParameter_WithoutAParameterRegistration_PassesAndReturnsAnEmptyValue(t *testing.T) {
 	config := NewConfig()
 
 	parsingErr := config.Parse()
-	httpConfigParameter := config.GetParameterValue(ConfigHTTPPort)
+	httpConfigParameter := config.GetValue(HTTPAddress)
 
 	assert.Empty(t, parsingErr)
 	assert.Empty(t, httpConfigParameter)
 }
 
-func TestGetParameter_WithAParameterRegistrationButWithoutParameterValue_PassesAndReturnsAnEmptyValue(t *testing.T) {
+func TestGetParameter_WithAParameterRegistrationButWithoutParameterValue_ReturnsAnError(t *testing.T) {
 	config := NewConfig()
-	setEnvVariable(HTTPPortParameter, "")
+	setEnvVariable(HTTPAddressParameter, "")
 
-	config.RegisterConfigParameter(ConfigHTTPPort)
+	config.Register(HTTPAddress)
 	parsingErr := config.Parse()
-	httpConfigParameter := config.GetParameterValue(ConfigHTTPPort)
+	httpConfigParameter := config.GetValue(HTTPAddress)
 
-	assert.Empty(t, parsingErr)
+	assert.Error(t, parsingErr)
+	helper.AssertError(t, ErrConfigParameterIsEmpty, parsingErr)
 	assert.Empty(t, httpConfigParameter)
 }
 
 func TestGetParameter_WithAParameterRegistrationAndValueSet_PassesAndReturnsValue(t *testing.T) {
 	httpPortValue := ":8080"
-	setEnvVariable(HTTPPortParameter, httpPortValue)
+	setEnvVariable(HTTPAddressParameter, httpPortValue)
 	config := NewConfig()
 
-	config.RegisterConfigParameter(ConfigHTTPPort)
+	config.Register(HTTPAddress)
 	parsingErr := config.Parse()
-	httpConfigParameter := config.GetParameterValue(ConfigHTTPPort)
+	httpConfigParameter := config.GetValue(HTTPAddress)
 
 	assert.Empty(t, parsingErr)
 	assert.Equal(t, httpPortValue, httpConfigParameter)
@@ -118,18 +121,18 @@ func TestGetParameter_WithAParameterRegistrationAndValueSet_PassesAndReturnsValu
 func TestGetParameter_WithSeveralParametersRegistrationAndValueSet_PassesAndReturnsValue(t *testing.T) {
 	// HTTP port
 	httpPortValue := ":8080"
-	setEnvVariable(HTTPPortParameter, httpPortValue)
+	setEnvVariable(HTTPAddressParameter, httpPortValue)
 	// Cassandra connection string
 	cassandraConnectionString := "cassandra://127.0.0.1/virgil_card"
 	setEnvVariable(CassandraParameter, cassandraConnectionString)
 	// Config object
 	config := NewConfig()
 
-	config.RegisterConfigParameter(ConfigHTTPPort)
-	config.RegisterConfigParameter(ConfigCassandra)
+	config.Register(HTTPAddress)
+	config.Register(Cassandra)
 	parsingErr := config.Parse()
-	httpConfigParameter := config.GetParameterValue(ConfigHTTPPort)
-	cassandraConfigParameter := config.GetParameterValue(ConfigCassandra)
+	httpConfigParameter := config.GetValue(HTTPAddress)
+	cassandraConfigParameter := config.GetValue(Cassandra)
 
 	assert.Empty(t, parsingErr)
 	assert.Equal(t, httpPortValue, httpConfigParameter)
@@ -139,13 +142,13 @@ func TestGetParameter_WithSeveralParametersRegistrationAndValueSet_PassesAndRetu
 func TestGetParameter_WithForANotRegisteredParameter_ReturnsAnError(t *testing.T) {
 	// HTTP port
 	httpPortValue := ":8080"
-	setEnvVariable(HTTPPortParameter, httpPortValue)
+	setEnvVariable(HTTPAddressParameter, httpPortValue)
 	// Config object
 	config := NewConfig()
 
-	config.RegisterConfigParameter(ConfigHTTPPort)
+	config.Register(HTTPAddress)
 	parsingErr := config.Parse()
-	cassandraConfigParameter := config.GetParameterValue(ConfigCassandra)
+	cassandraConfigParameter := config.GetValue(Cassandra)
 
 	assert.Empty(t, parsingErr)
 	assert.Empty(t, cassandraConfigParameter)

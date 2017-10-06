@@ -1,12 +1,13 @@
-package config
+package cfg
 
 import (
 	"encoding/base64"
-	"github.com/ameteiko/errors"
+
+	"github.com/ameteiko/golang-kit/errors"
 )
 
 //
-// RedisConnectionInfoProvider declares all the connection info getters.
+// Base64StringInfoProvider declares base64-encoded string getters.
 //
 type Base64StringInfoProvider interface {
 	GetDecodedValue() []byte
@@ -19,7 +20,8 @@ type Base64StringInfoProvider interface {
 //
 type Base64StringInfo struct {
 	decodedValue []byte
-	StringParameter
+
+	*StringParameter
 }
 
 //
@@ -36,16 +38,18 @@ func (p *Base64StringInfo) GetDecodedValue() []byte {
 func (p *Base64StringInfo) validate() error {
 	var err error
 
-	if err := p.StringParameter.validate(); nil != err {
-
+	if err = p.StringParameter.validate(); nil != err {
 		return err
 	}
 
 	if p.decodedValue, err = base64.StdEncoding.DecodeString(p.GetValue()); nil != err {
-
 		return errors.WrapError(
-			err,
-			errors.Errorf(`unable to base64-decode parameter (%s)`, p.GetValue()),
+			errors.WithMessage(
+				err,
+				`kit-cfg@Base64StringInfo.validate [parameter (%s), value ($s)]`,
+				p.GetValue(),
+				p.GetName(),
+			),
 			ErrBase64IncorrectValue,
 		)
 	}

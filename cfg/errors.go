@@ -1,4 +1,4 @@
-package config
+package cfg
 
 import (
 	"github.com/ameteiko/golang-kit/errors"
@@ -38,7 +38,13 @@ var (
 // URL errors.
 //
 var (
-	ErrURLIncorrectValue = errors.NewError("URL configuration parameter is incorrect")
+	ErrURLIncorrectValue    = errors.NewError("URL configuration parameter is incorrect")
 	ErrBase64IncorrectValue = errors.NewError("parameter is not a base64-encoded string")
 )
 
+//
+// Log errors.
+//
+var (
+	ErrLogSeverityIncorrectValue = errors.NewError("log severity is incorrect")
+)

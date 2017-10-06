@@ -1,4 +1,4 @@
-package config
+package cfg
 
 import (
 	"testing"
@@ -9,14 +9,14 @@ import (
 func TestRegisterHttpParser_WithParameters_PassesAndRegistersAParser(t *testing.T) {
 	// HTTP port
 	httpPort := ":8080"
-	httpPortEnvVariableName := EnvParameters[ConfigHTTPPort]
+	httpPortEnvVariableName := string(HTTPAddress)
 	setEnvVariable(httpPortEnvVariableName, httpPort)
 	// Config object
 	config := NewConfig()
 
-	config.RegisterConfigParameter(ConfigHTTPPort)
+	config.Register(HTTPAddress)
 	errParsing := config.Parse()
-	port := config.GetParameterValue(ConfigHTTPPort)
+	port := config.GetValue(HTTPAddress)
 
 	assert.Empty(t, errParsing)
 	assert.Equal(t, httpPort, port)

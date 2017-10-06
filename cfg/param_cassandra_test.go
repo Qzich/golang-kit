@@ -1,4 +1,4 @@
-package config
+package cfg
 
 import (
 	"fmt"
@@ -140,7 +140,7 @@ func TestCassandraParseConnectionString_WithSeveralHosts_Passes(t *testing.T) {
 func TestCassandraRegisterCassandraParser_WithoutParameters_PassesAndRegistersAParser(t *testing.T) {
 	config := NewConfig()
 
-	config.RegisterConfigParameter(ConfigCassandra)
+	config.Register(Cassandra)
 	err := config.Parse()
 
 	assert.Empty(t, err)
@@ -149,14 +149,14 @@ func TestCassandraRegisterCassandraParser_WithoutParameters_PassesAndRegistersAP
 func TestCassandraRegisterCassandraParser_WithParameters_PassesAndRegistersAParser(t *testing.T) {
 	// Cassandra connection string
 	cassandraConnectionString := "cassandra://127.0.0.1/virgil_card"
-	cassandraConnectionEnvVariableName := EnvParameters[ConfigCassandra]
+	cassandraConnectionEnvVariableName := string(Cassandra)
 	setEnvVariable(cassandraConnectionEnvVariableName, cassandraConnectionString)
 	// Config object
 	config := NewConfig()
 
-	config.RegisterConfigParameter(ConfigCassandra)
+	config.Register(Cassandra)
 	errParsing := config.Parse()
-	connectionString := config.GetParameterValue(ConfigCassandra)
+	connectionString := config.GetValue(Cassandra)
 
 	assert.Empty(t, errParsing)
 	assert.Equal(t, cassandraConnectionString, connectionString)
