@@ -1,7 +1,7 @@
-package config
+package cfg
 
 import (
-	"github.com/ameteiko/errors"
+	"github.com/ameteiko/golang-kit/errors"
 )
 
 //
@@ -43,6 +43,7 @@ type StringParameter struct {
 // GetValue returns a string parameter value.
 //
 func (p *StringParameter) GetValue() string {
+
 	return p.value
 }
 
@@ -50,6 +51,7 @@ func (p *StringParameter) GetValue() string {
 // GetValueLink returns value link.
 //
 func (p *StringParameter) GetValueLink() *string {
+
 	return &p.value
 }
 
@@ -57,6 +59,7 @@ func (p *StringParameter) GetValueLink() *string {
 // GetName returns a configuration parameter name.
 //
 func (p *StringParameter) GetName() string {
+
 	return p.name
 }
 
@@ -65,8 +68,11 @@ func (p *StringParameter) GetName() string {
 //
 func (p *StringParameter) validate() error {
 	if "" == p.GetValue() {
-
-		return errors.Wrapf(ErrConfigParameterIsEmpty, `configuration parameter (%s) is empty`, p.GetName())
+		return errors.WithMessage(
+			ErrConfigParameterIsEmpty,
+			`kit-cfg@StringParameter.validate [parameter (%s)]`,
+			p.GetName(),
+		)
 	}
 
 	return nil
