@@ -327,10 +327,6 @@ func (c *Config) GetURLParameter(param Parameter) (URLInfoProvider, error) {
 func (c *Config) validateParameters() error {
 	for _, parameterEntry := range c.parameters {
 		if err := parameterEntry.validate(); nil != err {
-			//println(parameterEntry.GetName())
-			//println(parameterEntry.GetValue())
-			//println(err.Error())
-			//os.Exit(2)
 			return errors.WithMessage(
 				err,
 				`kit-cfg@Config.validateParameters [parameter (%s) value (%s)]`,
