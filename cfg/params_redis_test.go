@@ -18,7 +18,7 @@ const (
 )
 
 func TestRedisParseConnectionString_WithAnEmptyString_ReturnsAnError(t *testing.T) {
-	ri := new(RedisConnectionInfo)
+	ri := newRedisConnectionInfo()
 
 	err := ri.validate()
 
@@ -28,7 +28,7 @@ func TestRedisParseConnectionString_WithAnEmptyString_ReturnsAnError(t *testing.
 
 func TestRedisParseConnectionString_WithAnIncorrectConnectionString_ReturnsAnError(t *testing.T) {
 	incorrectConnectionString := "*:?//"
-	ri := new(RedisConnectionInfo)
+	ri := newRedisConnectionInfo()
 	ri.value = incorrectConnectionString
 
 	err := ri.validate()
@@ -38,7 +38,7 @@ func TestRedisParseConnectionString_WithAnIncorrectConnectionString_ReturnsAnErr
 }
 
 func TestRedisParseConnectionString_WithAnEmptyURLScheme_ReturnsAnError(t *testing.T) {
-	ri := new(RedisConnectionInfo)
+	ri := newRedisConnectionInfo()
 	ri.value = "host.com"
 
 	err := ri.validate()
@@ -48,7 +48,7 @@ func TestRedisParseConnectionString_WithAnEmptyURLScheme_ReturnsAnError(t *testi
 }
 
 func TestRedisParseConnectionString_WithAnIncorrectURLScheme_ReturnsAnError(t *testing.T) {
-	ri := new(RedisConnectionInfo)
+	ri := newRedisConnectionInfo()
 	ri.value = "mongodb://host.com"
 
 	err := ri.validate()
@@ -58,7 +58,7 @@ func TestRedisParseConnectionString_WithAnIncorrectURLScheme_ReturnsAnError(t *t
 }
 
 func TestRedisParseConnectionString_WithAnEmptyHost_ReturnsAnError(t *testing.T) {
-	ri := new(RedisConnectionInfo)
+	ri := newRedisConnectionInfo()
 	ri.value = "redis://:3443"
 
 	err := ri.validate()
@@ -68,7 +68,7 @@ func TestRedisParseConnectionString_WithAnEmptyHost_ReturnsAnError(t *testing.T)
 }
 
 func TestRedisParseConnectionString_WithAnEmptyPort_ReturnsAnError(t *testing.T) {
-	ri := new(RedisConnectionInfo)
+	ri := newRedisConnectionInfo()
 	ri.value = "redis://host.com"
 
 	err := ri.validate()
@@ -78,7 +78,7 @@ func TestRedisParseConnectionString_WithAnEmptyPort_ReturnsAnError(t *testing.T)
 }
 
 func TestRedisParseConnectionString_WithACorrectConnectionString_Passes(t *testing.T) {
-	ri := new(RedisConnectionInfo)
+	ri := newRedisConnectionInfo()
 	ri.value = fmt.Sprintf("redis://%s:%s", redisHost, redisPort)
 
 	err := ri.validate()

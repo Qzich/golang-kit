@@ -36,6 +36,15 @@ type RedisConnectionInfoProvider interface {
 }
 
 //
+// newRedisConnectionInfo returns a new redis connection info object.
+//
+func newRedisConnectionInfo() *RedisConnectionInfo {
+	return &RedisConnectionInfo{
+		StringParameter: &StringParameter{},
+	}
+}
+
+//
 // GetHost returns the host.
 //
 func (c *RedisConnectionInfo) GetHost() string {

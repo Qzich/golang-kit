@@ -29,14 +29,11 @@ const (
 // Predefined configuration parameter types.
 //
 const (
-	Cassandra          Parameter = "CASSANDRA"
-	HTTPAddress                  = "HTTP_ADDRESS"
-	DevPortalURL                 = "URL_DEV_PORTAL"
-	Redis                        = "REDIS"
-	PrivateKey                   = "PRIVATE_KEY"
-	PrivateKeyPassword           = "PRIVATE_KEY_PASSWORD"
-	PublicKey                    = "PUBLIC_KEY"
-	LogSeverity                  = "LOG_SEVERITY"
+	DevPortalURL Parameter = "DEVPORTAL_URL"
+
+	Cards4PublicKey = "CARDS4_PUBLIC_KEY"
+	Cards4ReadURL   = "CARDS4_READ_URL"
+	Cards4CardID    = "CARDS4_CARD_ID"
 )
 
 //
@@ -88,6 +85,46 @@ type CustomParamsConfiger interface {
 	// GetURLParameter returns a URL parameter info.
 	//
 	GetURLParameter(Parameter) (URLInfoProvider, error)
+
+	//
+	// RegisterCassandraParameter registers Cassandra configuration parameter.
+	//
+	RegisterCassandraParameter(Parameter)
+
+	//
+	// GetCassandraParameter returns Cassandra configuration parameter value.
+	//
+	GetCassandraParameter(Parameter) (CassandraConnectionInfo, error)
+
+	//
+	// RegisterLogParameter registers log configuration parameter.
+	//
+	RegisterLogParameter(Parameter)
+
+	//
+	// GetLogParameter returns log configuration parameter value.
+	//
+	GetLogParameter(Parameter) (LogInfoProvider, error)
+}
+
+//
+// CommonsConfiger returns all the common application parameters.
+//
+type CommonsConfiger interface {
+	//
+	// GetCards4ReadURL returns Cards v4 read url.
+	//
+	GetCards4ReadURL() (URLInfoProvider, error)
+
+	//
+	// GetCards4CardID returns Cards v4 card id.
+	//
+	GetCards4CardID() (ParameterInfoProvider, error)
+
+	//
+	// GetCards4PublicKey returns Cards v4 public key.
+	//
+	GetCards4PublicKey() (Base64StringInfoProvider, error)
 }
 
 //
@@ -103,37 +140,6 @@ type DefaultsConfiger interface {
 	// GetHTTPWriteTimeout a default HTTP write timeout.
 	//
 	GetHTTPWriteTimeout() time.Duration
-}
-
-//
-// ConfigParametersRetriever interface provides all syntax sugar for a configuration parameters registering and
-// retrieving. It's deliberately segregated into separate interface.
-//
-type ConfigParametersRetriever interface {
-	//
-	// GetCassandraConnectionInfo returns a Cassandra connection info.
-	//
-	GetCassandraConnectionInfo() CassandraConnectionInfoProvider
-
-	//
-	// GetRedisConnectionInfo returns a Redis connection info.
-	//
-	GetRedisConnectionInfo() RedisConnectionInfoProvider
-
-	//
-	// GetPrivateKeyInfo returns a private key info.
-	//
-	GetPrivateKeyInfo() Base64StringInfoProvider
-
-	//
-	// GetPrivateKeyPasswordInfo returns a private key password info.
-	//
-	GetPrivateKeyPasswordInfo() Base64StringInfoProvider
-
-	//
-	// GetLogInfo returns a log severity info.
-	//
-	GetLogInfo() LogInfoProvider
 }
 
 //
@@ -173,6 +179,13 @@ func (c *Config) RegisterStringParameter(param Parameter) {
 }
 
 //
+// RegisterCassandraParameter registers a cassandra connection configuration parameter.
+//
+func (c *Config) RegisterCassandraParameter(param Parameter) {
+	c.parameters[param] = newCassandraParameter(param)
+}
+
+//
 // RegisterBase64Parameter registers a custom base64-encoded configuration parameter.
 //
 func (c *Config) RegisterBase64Parameter(param Parameter) {
@@ -184,6 +197,13 @@ func (c *Config) RegisterBase64Parameter(param Parameter) {
 //
 func (c *Config) RegisterURLParameter(param Parameter) {
 	c.parameters[param] = newURLParameter(param)
+}
+
+//
+// RegisterLogParameter registers log configuration parameter.
+//
+func (c *Config) RegisterLogParameter(param Parameter) {
+	c.parameters[param] = newLogParameter(param)
 }
 
 //
@@ -235,45 +255,78 @@ func (c *Config) GetHTTPWriteTimeout() time.Duration {
 }
 
 //
-// GetCassandraConnectionInfo returns cassandra connection info object.
+// GetLogParameter returns log configuration parameter value.
 //
-func (c *Config) GetCassandraConnectionInfo() CassandraConnectionInfoProvider {
+func (c *Config) GetCards4ReadURL() (URLInfoProvider, error) {
+	url, ok := c.parameters[Cards4ReadURL].(LogInfoProvider)
+	if !ok {
+		return nil, errors.WithMessage(
+			errors.ErrGetMisregisteredConfigParameter,
+			"kit-cfg@Config.GetCards4ReadURL",
+		)
+	}
 
-	return c.parameters[Cassandra].(CassandraConnectionInfoProvider)
+	return url, nil
 }
 
 //
-// GetRedisConnectionInfo returns redis connection info object.
+// GetLogParameter returns log configuration parameter value.
 //
-func (c *Config) GetRedisConnectionInfo() RedisConnectionInfoProvider {
+func (c *Config) GetCards4CardID() (ParameterInfoProvider, error) {
+	id, ok := c.parameters[Cards4CardID].(ParameterInfoProvider)
+	if !ok {
+		return nil, errors.WithMessage(
+			errors.ErrGetMisregisteredConfigParameter,
+			"kit-cfg@Config.GetCards4CardID",
+		)
+	}
 
-	return c.parameters[Redis].(RedisConnectionInfoProvider)
+	return id, nil
 }
 
 //
-// GetPrivateKeyInfo returns a private key info.
+// GetLogParameter returns log configuration parameter value.
 //
-func (c *Config) GetPrivateKeyInfo() Base64StringInfoProvider {
-	privateKeyParameter, _ := c.GetBase64Parameter(PrivateKey)
+func (c *Config) GetCards4PublicKey() (Base64StringInfoProvider, error) {
+	key, ok := c.parameters[Cards4PublicKey].(Base64StringInfoProvider)
+	if !ok {
+		return nil, errors.WithMessage(
+			errors.ErrGetMisregisteredConfigParameter,
+			"kit-cfg@Config.GetCards4PublicKey",
+		)
+	}
 
-	return privateKeyParameter
+	return key, nil
 }
 
 //
-// GetPrivateKeyPasswordInfo returns a private key password info.
+// GetLogParameter returns log configuration parameter value.
 //
-func (c *Config) GetPrivateKeyPasswordInfo() Base64StringInfoProvider {
-	privateKeyPasswordParameter, _ := c.GetBase64Parameter(PrivateKeyPassword)
+func (c *Config) GetLogParameter(param Parameter) (LogInfoProvider, error) {
+	parameter, ok := c.parameters[param].(LogInfoProvider)
+	if !ok {
+		return nil, errors.WithMessage(
+			errors.ErrGetMisregisteredConfigParameter,
+			"kit-cfg@Config.GetLogParameter",
+		)
+	}
 
-	return privateKeyPasswordParameter
+	return parameter, nil
 }
 
 //
-// GetLogInfo returns a log info.
+// GetCassandraParameter returns cassandra config parameter.
 //
-func (c *Config) GetLogInfo() LogInfoProvider {
+func (c *Config) GetCassandraParameter(param Parameter) (CassandraConnectionInfoProvider, error) {
+	parameter, ok := c.parameters[param].(CassandraConnectionInfoProvider)
+	if !ok {
+		return nil, errors.WithMessage(
+			errors.ErrGetMisregisteredConfigParameter,
+			"kit-cfg@Config.GetCassandraParameter",
+		)
+	}
 
-	return c.parameters[LogSeverity].(LogInfoProvider)
+	return parameter, nil
 }
 
 //
@@ -310,7 +363,7 @@ func (c *Config) GetBase64Parameter(param Parameter) (Base64StringInfoProvider, 
 // GetURLParameter returns a URL parameter info.
 //
 func (c *Config) GetURLParameter(param Parameter) (URLInfoProvider, error) {
-	parameter, ok := c.parameters[param].(URLInfoProvider)
+	url, ok := c.parameters[param].(URLInfoProvider)
 	if !ok {
 		return nil, errors.WithMessage(
 			errors.ErrGetMisregisteredConfigParameter,
@@ -318,7 +371,7 @@ func (c *Config) GetURLParameter(param Parameter) (URLInfoProvider, error) {
 		)
 	}
 
-	return parameter, nil
+	return url, nil
 }
 
 //
@@ -343,18 +396,14 @@ func (c *Config) validateParameters() error {
 //
 func getConfigParameterEntry(parameter Parameter) ParameterInfoProvider {
 	switch parameter {
-	case Cassandra:
-		return &CassandraConnectionInfo{StringParameter: newStringParameter(parameter)}
-	case Redis:
-		return &RedisConnectionInfo{StringParameter: newStringParameter(parameter)}
 	case DevPortalURL:
 		return newURLParameter(parameter)
-	case PrivateKey:
-		fallthrough
-	case PrivateKeyPassword:
+	case Cards4ReadURL:
+		return newURLParameter(parameter)
+	case Cards4PublicKey:
 		return newBase64Parameter(parameter)
-	case LogSeverity:
-		return &LogInfo{StringParameter: newStringParameter(parameter)}
+	case Cards4CardID:
+		return newStringParameter(parameter)
 	default:
 		return newStringParameter(parameter)
 	}
@@ -384,4 +433,20 @@ func newBase64Parameter(param Parameter) *Base64StringInfo {
 func newURLParameter(param Parameter) *URLInfo {
 
 	return &URLInfo{StringParameter: newStringParameter(param)}
+}
+
+//
+// newCassandraParameter registers a new Cassandra parameter.
+//
+func newCassandraParameter(param Parameter) *CassandraConnectionInfo {
+
+	return &CassandraConnectionInfo{StringParameter: newStringParameter(param)}
+}
+
+//
+// newCassandraParameter registers a new Cassandra parameter.
+//
+func newLogParameter(param Parameter) *LogInfo {
+
+	return &LogInfo{StringParameter: newStringParameter(param)}
 }

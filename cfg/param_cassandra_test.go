@@ -21,8 +21,15 @@ const (
 	cassandraPassword = "pwd"
 )
 
+//
+// Configuration parameters.
+//
+const (
+	CassandraTestParameter Parameter = "CASSANDRA"
+)
+
 func TestCassandraParseConnectionString_WithAnEmptyString_ReturnsAnError(t *testing.T) {
-	ci := new(CassandraConnectionInfo)
+	ci := newCassandraConnectionInfo()
 
 	err := ci.validate()
 
@@ -32,7 +39,7 @@ func TestCassandraParseConnectionString_WithAnEmptyString_ReturnsAnError(t *test
 
 func TestCassandraParseConnectionString_WithAnIncorrectConnectionString_ReturnsAnError(t *testing.T) {
 	incorrectConnectionString := "*:?//"
-	ci := new(CassandraConnectionInfo)
+	ci := newCassandraConnectionInfo()
 	ci.value = incorrectConnectionString
 
 	err := ci.validate()
@@ -42,7 +49,7 @@ func TestCassandraParseConnectionString_WithAnIncorrectConnectionString_ReturnsA
 }
 
 func TestCassandraParseConnectionString_WithAnEmptyURLScheme_ReturnsAnError(t *testing.T) {
-	ci := new(CassandraConnectionInfo)
+	ci := newCassandraConnectionInfo()
 	ci.value = "host.com"
 
 	err := ci.validate()
@@ -52,7 +59,7 @@ func TestCassandraParseConnectionString_WithAnEmptyURLScheme_ReturnsAnError(t *t
 }
 
 func TestCassandraParseConnectionString_WithAnIncorrectURLScheme_ReturnsAnError(t *testing.T) {
-	ci := new(CassandraConnectionInfo)
+	ci := newCassandraConnectionInfo()
 	ci.value = "mongodb://host.com"
 
 	err := ci.validate()
@@ -62,7 +69,7 @@ func TestCassandraParseConnectionString_WithAnIncorrectURLScheme_ReturnsAnError(
 }
 
 func TestCassandraParseConnectionString_WithAnEmptyKeyspace_ReturnsAnError(t *testing.T) {
-	ci := new(CassandraConnectionInfo)
+	ci := newCassandraConnectionInfo()
 	ci.value = "cassandra://host.com/?dv=US"
 
 	err := ci.validate()
@@ -72,7 +79,7 @@ func TestCassandraParseConnectionString_WithAnEmptyKeyspace_ReturnsAnError(t *te
 }
 
 func TestCassandraParseConnectionString_WithACorrectConnectionString_Passes(t *testing.T) {
-	ci := new(CassandraConnectionInfo)
+	ci := newCassandraConnectionInfo()
 	ci.value = fmt.Sprintf("cassandra://%s/%s?dc=%s", cassandraHost1, cassandraKeyspace, cassandraDc)
 
 	err := ci.validate()
@@ -86,7 +93,7 @@ func TestCassandraParseConnectionString_WithACorrectConnectionString_Passes(t *t
 }
 
 func TestCassandraParseConnectionString_WithAUserParameterButWithoutPasswordOne_ReturnsAnError(t *testing.T) {
-	ci := new(CassandraConnectionInfo)
+	ci := newCassandraConnectionInfo()
 	ci.value = fmt.Sprintf(
 		"cassandra://%s@%s/%s?cassandraDc=%s",
 		cassandraUsername,
@@ -102,7 +109,7 @@ func TestCassandraParseConnectionString_WithAUserParameterButWithoutPasswordOne_
 }
 
 func TestCassandraParseConnectionString_WithAnAuthParameters_Passes(t *testing.T) {
-	ci := new(CassandraConnectionInfo)
+	ci := newCassandraConnectionInfo()
 	ci.value = fmt.Sprintf(
 		"cassandra://%s:%s@%s,%s/%s?cassandraDc=%s",
 		cassandraUsername,
@@ -122,7 +129,7 @@ func TestCassandraParseConnectionString_WithAnAuthParameters_Passes(t *testing.T
 }
 
 func TestCassandraParseConnectionString_WithSeveralHosts_Passes(t *testing.T) {
-	ci := new(CassandraConnectionInfo)
+	ci := newCassandraConnectionInfo()
 	ci.value = fmt.Sprintf(
 		"cassandra://%s,%s/%s",
 		cassandraHost1,
@@ -140,24 +147,25 @@ func TestCassandraParseConnectionString_WithSeveralHosts_Passes(t *testing.T) {
 func TestCassandraRegisterCassandraParser_WithoutParameters_PassesAndRegistersAParser(t *testing.T) {
 	config := NewConfig()
 
-	config.Register(Cassandra)
+	config.RegisterCassandraParameter(CassandraTestParameter)
 	err := config.Parse()
 
-	assert.Empty(t, err)
+	assert.Error(t, err)
 }
 
 func TestCassandraRegisterCassandraParser_WithParameters_PassesAndRegistersAParser(t *testing.T) {
 	// Cassandra connection string
 	cassandraConnectionString := "cassandra://127.0.0.1/virgil_card"
-	cassandraConnectionEnvVariableName := string(Cassandra)
+	cassandraConnectionEnvVariableName := string(CassandraTestParameter)
 	setEnvVariable(cassandraConnectionEnvVariableName, cassandraConnectionString)
 	// Config object
 	config := NewConfig()
 
-	config.Register(Cassandra)
+	config.RegisterCassandraParameter(CassandraTestParameter)
 	errParsing := config.Parse()
-	connectionString := config.GetValue(Cassandra)
+	connectionString, err := config.GetCassandraParameter(CassandraTestParameter)
 
 	assert.Empty(t, errParsing)
-	assert.Equal(t, cassandraConnectionString, connectionString)
+	assert.Empty(t, err)
+	assert.Equal(t, cassandraConnectionString, connectionString.GetValue())
 }

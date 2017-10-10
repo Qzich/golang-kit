@@ -9,7 +9,7 @@ import (
 )
 
 func TestURLValidate_WithAnEmptyString_ReturnsAnError(t *testing.T) {
-	ui := new(URLInfo)
+	ui := newURLInfo()
 
 	err := ui.validate()
 
@@ -19,7 +19,7 @@ func TestURLValidate_WithAnEmptyString_ReturnsAnError(t *testing.T) {
 
 func TestURLValidate_WithAnIncorrectString_ReturnsAnError(t *testing.T) {
 	incorrectConnectionString := "*:?//"
-	ui := new(URLInfo)
+	ui := newURLInfo()
 	ui.value = incorrectConnectionString
 
 	err := ui.validate()
@@ -30,7 +30,7 @@ func TestURLValidate_WithAnIncorrectString_ReturnsAnError(t *testing.T) {
 
 func TestURLValidate_WithACorrectString_Passes(t *testing.T) {
 	url := "https://google.com"
-	ui := new(URLInfo)
+	ui := newURLInfo()
 	ui.value = url
 
 	err := ui.validate()

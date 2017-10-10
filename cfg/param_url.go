@@ -25,6 +25,15 @@ type URLInfo struct {
 }
 
 //
+// newURLInfo returns a new URL info object instance.
+//
+func newURLInfo() *URLInfo {
+	return &URLInfo{
+		StringParameter: &StringParameter{},
+	}
+}
+
+//
 // validate validates the URL config parameter.
 //
 func (c *URLInfo) validate() error {

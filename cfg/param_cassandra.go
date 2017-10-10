@@ -45,6 +45,15 @@ type CassandraConnectionInfoProvider interface {
 }
 
 //
+// newCassandraConnectionInfo returns a new CassandraConnectionInfo object instance.
+//
+func newCassandraConnectionInfo() *CassandraConnectionInfo {
+	return &CassandraConnectionInfo{
+		StringParameter: &StringParameter{},
+	}
+}
+
+//
 // GetHosts returns the list of hosts.
 //
 func (c *CassandraConnectionInfo) GetHosts() []string {
@@ -106,9 +115,6 @@ func (c *CassandraConnectionInfo) IsAuthorizationRequired() bool {
 func (c *CassandraConnectionInfo) validate() error {
 	var err error
 	var connectionInfo *url.URL
-
-	//println("aaaaa")
-	//os.Exit(6)
 
 	connectionString := c.GetValue()
 	errMsg := fmt.Sprintf(`kit-cfg@CassandraConnectionInfo.validate [connection string (%s)]`, connectionString)

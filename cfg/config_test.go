@@ -14,8 +14,8 @@ import (
 // Common variables.
 //
 var (
-	HTTPAddressParameter = string(HTTPAddress)
-	CassandraParameter   = string(Cassandra)
+	EnvCards4CardID  = string(Cards4CardID)
+	EnvCards4ReadURL = string(Cards4ReadURL)
 )
 
 func TestNewConfig_WithoutRegisteredParameters_Passes(t *testing.T) {
@@ -29,7 +29,7 @@ func TestNewConfig_WithoutRegisteredParameters_Passes(t *testing.T) {
 func TestRegisterConfigParameter_WithAValidParameter_RegistersAParameter(t *testing.T) {
 	config := NewConfig()
 
-	config.Register(HTTPAddress)
+	config.Register(Cards4CardID)
 
 	assert.Equal(t, 1, len(config.parameters))
 }
@@ -37,8 +37,8 @@ func TestRegisterConfigParameter_WithAValidParameter_RegistersAParameter(t *test
 func TestRegisterConfigParameter_WithTwoValidParameters_RegistersBothParameters(t *testing.T) {
 	config := NewConfig()
 
-	config.Register(HTTPAddress)
-	config.Register(Cassandra)
+	config.Register(Cards4CardID)
+	config.Register(DevPortalURL)
 
 	assert.Equal(t, 2, len(config.parameters))
 }
@@ -46,8 +46,8 @@ func TestRegisterConfigParameter_WithTwoValidParameters_RegistersBothParameters(
 func TestRegisterConfigParameter_WithSequentialParameterRegistration_RegistersJustOneInstance(t *testing.T) {
 	config := NewConfig()
 
-	config.Register(HTTPAddress)
-	config.Register(HTTPAddress)
+	config.Register(DevPortalURL)
+	config.Register(DevPortalURL)
 
 	assert.Equal(t, 1, len(config.parameters))
 }
@@ -75,7 +75,7 @@ func TestParse_WithoutParameterRegistration_Passes(t *testing.T) {
 func TestParse_WithAParameterRegistration_ReturnsAnError(t *testing.T) {
 	config := NewConfig()
 
-	config.Register(HTTPAddress)
+	config.Register(DevPortalURL)
 	err := config.Parse()
 
 	assert.Error(t, err)
@@ -86,7 +86,7 @@ func TestGetParameter_WithoutAParameterRegistration_PassesAndReturnsAnEmptyValue
 	config := NewConfig()
 
 	parsingErr := config.Parse()
-	httpConfigParameter := config.GetValue(HTTPAddress)
+	httpConfigParameter := config.GetValue(DevPortalURL)
 
 	assert.Empty(t, parsingErr)
 	assert.Empty(t, httpConfigParameter)
@@ -94,11 +94,11 @@ func TestGetParameter_WithoutAParameterRegistration_PassesAndReturnsAnEmptyValue
 
 func TestGetParameter_WithAParameterRegistrationButWithoutParameterValue_ReturnsAnError(t *testing.T) {
 	config := NewConfig()
-	setEnvVariable(HTTPAddressParameter, "")
+	setEnvVariable(EnvCards4ReadURL, "")
 
-	config.Register(HTTPAddress)
+	config.Register(DevPortalURL)
 	parsingErr := config.Parse()
-	httpConfigParameter := config.GetValue(HTTPAddress)
+	httpConfigParameter := config.GetValue(Cards4ReadURL)
 
 	assert.Error(t, parsingErr)
 	helper.AssertError(t, ErrConfigParameterIsEmpty, parsingErr)
@@ -106,52 +106,48 @@ func TestGetParameter_WithAParameterRegistrationButWithoutParameterValue_Returns
 }
 
 func TestGetParameter_WithAParameterRegistrationAndValueSet_PassesAndReturnsValue(t *testing.T) {
-	httpPortValue := ":8080"
-	setEnvVariable(HTTPAddressParameter, httpPortValue)
+	httpPortValue := "CARD ID"
+	setEnvVariable(EnvCards4CardID, httpPortValue)
 	config := NewConfig()
 
-	config.Register(HTTPAddress)
+	config.Register(Cards4CardID)
 	parsingErr := config.Parse()
-	httpConfigParameter := config.GetValue(HTTPAddress)
+	httpConfigParameter := config.GetValue(Cards4CardID)
 
 	assert.Empty(t, parsingErr)
 	assert.Equal(t, httpPortValue, httpConfigParameter)
 }
 
 func TestGetParameter_WithSeveralParametersRegistrationAndValueSet_PassesAndReturnsValue(t *testing.T) {
-	// HTTP port
-	httpPortValue := ":8080"
-	setEnvVariable(HTTPAddressParameter, httpPortValue)
-	// Cassandra connection string
-	cassandraConnectionString := "cassandra://127.0.0.1/virgil_card"
-	setEnvVariable(CassandraParameter, cassandraConnectionString)
+	urlValue := "https://virgil.com"
+	setEnvVariable(EnvCards4ReadURL, urlValue)
+	idValue := "Card ID"
+	setEnvVariable(EnvCards4CardID, idValue)
 	// Config object
 	config := NewConfig()
 
-	config.Register(HTTPAddress)
-	config.Register(Cassandra)
+	config.Register(Cards4ReadURL)
+	config.Register(Cards4CardID)
 	parsingErr := config.Parse()
-	httpConfigParameter := config.GetValue(HTTPAddress)
-	cassandraConfigParameter := config.GetValue(Cassandra)
+	url := config.GetValue(Cards4ReadURL)
+	id := config.GetValue(Cards4CardID)
 
 	assert.Empty(t, parsingErr)
-	assert.Equal(t, httpPortValue, httpConfigParameter)
-	assert.Equal(t, cassandraConnectionString, cassandraConfigParameter)
+	assert.Equal(t, urlValue, url)
+	assert.Equal(t, idValue, id)
 }
 
 func TestGetParameter_WithForANotRegisteredParameter_ReturnsAnError(t *testing.T) {
-	// HTTP port
-	httpPortValue := ":8080"
-	setEnvVariable(HTTPAddressParameter, httpPortValue)
-	// Config object
+	cardID := "Card ID"
+	setEnvVariable(EnvCards4CardID, cardID)
 	config := NewConfig()
 
-	config.Register(HTTPAddress)
+	config.Register(Cards4CardID)
 	parsingErr := config.Parse()
-	cassandraConfigParameter := config.GetValue(Cassandra)
+	url := config.GetValue(Cards4ReadURL)
 
 	assert.Empty(t, parsingErr)
-	assert.Empty(t, cassandraConfigParameter)
+	assert.Empty(t, url)
 }
 
 //

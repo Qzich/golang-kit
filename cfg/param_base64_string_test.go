@@ -5,12 +5,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/ameteiko/golang-kit/test/helper"
 	"encoding/base64"
+	"github.com/ameteiko/golang-kit/test/helper"
 )
 
 func TestBase64StringValidate_WithAnEmptyString_ReturnsAnError(t *testing.T) {
-	si := Base64StringInfo{}
+	si := Base64StringInfo{StringParameter: &StringParameter{}}
 
 	err := si.validate()
 
@@ -20,7 +20,7 @@ func TestBase64StringValidate_WithAnEmptyString_ReturnsAnError(t *testing.T) {
 
 func TestBase64StringValidate_WithNotABase64EncodedString_ReturnsAnError(t *testing.T) {
 	notABase64EncodedValue := "!@#$%^&*()_"
-	si := Base64StringInfo{}
+	si := Base64StringInfo{StringParameter: &StringParameter{}}
 	si.value = notABase64EncodedValue
 
 	err := si.validate()
@@ -31,7 +31,7 @@ func TestBase64StringValidate_WithNotABase64EncodedString_ReturnsAnError(t *test
 
 func TestBase64StringValidate_WithABase64EncodedString_Passes(t *testing.T) {
 	rawValue := []byte("Some string")
-	si := Base64StringInfo{}
+	si := Base64StringInfo{StringParameter: &StringParameter{}}
 	si.value = base64.StdEncoding.EncodeToString(rawValue)
 
 	err := si.validate()
