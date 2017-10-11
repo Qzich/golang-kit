@@ -68,7 +68,7 @@ func (c *DIContainer) IsDependencySet(name string) bool {
 }
 
 //
-// registerDependency registers a dependency in DI.
+// RegisterDependency registers a dependency in DI.
 //
 func (c *DIContainer) RegisterDependency(
 	depName string,
@@ -76,13 +76,13 @@ func (c *DIContainer) RegisterDependency(
 	disposer dependencyDisposer,
 ) error {
 
-	def := di.Definition{
-		Name:  depName,
-		Build: registrar,
-		Close: disposer,
-	}
-
-	if err := c.builder.AddDefinition(def); nil != err {
+	err := c.builder.AddDefinition(
+		di.Definition{
+			Name:  depName,
+			Build: registrar,
+			Close: disposer,
+		})
+	if nil != err {
 		return errors.WithMessage(err, `error on dependency (%s) registration`, depName)
 	}
 

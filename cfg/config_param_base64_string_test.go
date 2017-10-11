@@ -1,11 +1,11 @@
 package cfg
 
 import (
+	"encoding/base64"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
-	"encoding/base64"
 	"github.com/ameteiko/golang-kit/test/helper"
 )
 

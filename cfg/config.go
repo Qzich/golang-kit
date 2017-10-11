@@ -94,7 +94,17 @@ type CustomParamsConfiger interface {
 	//
 	// GetCassandraParameter returns Cassandra configuration parameter value.
 	//
-	GetCassandraParameter(Parameter) (CassandraConnectionInfo, error)
+	GetCassandraParameter(Parameter) (CassandraConnectionInfoProvider, error)
+
+	//
+	// RegisterRedisParameter registers Redis configuration parameter.
+	//
+	RegisterRedisParameter(Parameter)
+
+	//
+	// GetRedisParameter returns Redis configuration parameter value.
+	//
+	GetRedisParameter(Parameter) (RedisConnectionInfoProvider, error)
 
 	//
 	// RegisterLogParameter registers log configuration parameter.
@@ -186,6 +196,13 @@ func (c *Config) RegisterCassandraParameter(param Parameter) {
 }
 
 //
+// RegisterRedisParameter registers redis connection configuration parameter.
+//
+func (c *Config) RegisterRedisParameter(param Parameter) {
+	c.parameters[param] = newRedisParameter(param)
+}
+
+//
 // RegisterBase64Parameter registers a custom base64-encoded configuration parameter.
 //
 func (c *Config) RegisterBase64Parameter(param Parameter) {
@@ -255,7 +272,7 @@ func (c *Config) GetHTTPWriteTimeout() time.Duration {
 }
 
 //
-// GetLogParameter returns log configuration parameter value.
+// GetCards4ReadURL returns Virgil Cards service read URL.
 //
 func (c *Config) GetCards4ReadURL() (URLInfoProvider, error) {
 	url, ok := c.parameters[Cards4ReadURL].(LogInfoProvider)
@@ -270,7 +287,7 @@ func (c *Config) GetCards4ReadURL() (URLInfoProvider, error) {
 }
 
 //
-// GetLogParameter returns log configuration parameter value.
+// GetCards4CardID returns Virgil Cards service Virgil Card ID.
 //
 func (c *Config) GetCards4CardID() (ParameterInfoProvider, error) {
 	id, ok := c.parameters[Cards4CardID].(ParameterInfoProvider)
@@ -285,7 +302,7 @@ func (c *Config) GetCards4CardID() (ParameterInfoProvider, error) {
 }
 
 //
-// GetLogParameter returns log configuration parameter value.
+// GetCards4PublicKey returns Virgil Cards service public key.
 //
 func (c *Config) GetCards4PublicKey() (Base64StringInfoProvider, error) {
 	key, ok := c.parameters[Cards4PublicKey].(Base64StringInfoProvider)
@@ -330,7 +347,22 @@ func (c *Config) GetCassandraParameter(param Parameter) (CassandraConnectionInfo
 }
 
 //
-// GetBase64Parameter returns a Base64-encoded parameter info.
+// GetRedisParameter returns cassandra config parameter.
+//
+func (c *Config) GetRedisParameter(param Parameter) (RedisConnectionInfoProvider, error) {
+	parameter, ok := c.parameters[param].(RedisConnectionInfoProvider)
+	if !ok {
+		return nil, errors.WithMessage(
+			errors.ErrGetMisregisteredConfigParameter,
+			"kit-cfg@Config.GetRedisParameter",
+		)
+	}
+
+	return parameter, nil
+}
+
+//
+// GetStringParameter returns a string parameter info.
 //
 func (c *Config) GetStringParameter(param Parameter) (ParameterInfoProvider, error) {
 	parameter, ok := c.parameters[param].(ParameterInfoProvider)
@@ -441,6 +473,14 @@ func newURLParameter(param Parameter) *URLInfo {
 func newCassandraParameter(param Parameter) *CassandraConnectionInfo {
 
 	return &CassandraConnectionInfo{StringParameter: newStringParameter(param)}
+}
+
+//
+// newRedisParameter registers a new Redis parameter.
+//
+func newRedisParameter(param Parameter) *RedisConnectionInfo {
+
+	return &RedisConnectionInfo{StringParameter: newStringParameter(param)}
 }
 
 //
