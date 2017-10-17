@@ -38,8 +38,9 @@ var (
 // URL errors.
 //
 var (
-	ErrURLIncorrectValue    = errors.NewError("URL configuration parameter is incorrect")
-	ErrBase64IncorrectValue = errors.NewError("parameter is not a base64-encoded string")
+	ErrURLIncorrectValue            = errors.NewError("URL configuration parameter is incorrect")
+	ErrURLDoesNotContainVersionPart = errors.NewError("URL doesn't contain version part")
+	ErrBase64IncorrectValue         = errors.NewError("parameter is not a base64-encoded string")
 )
 
 //

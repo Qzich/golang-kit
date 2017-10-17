@@ -2,6 +2,7 @@ package cfg
 
 import (
 	"net/url"
+	"regexp"
 
 	"github.com/ameteiko/golang-kit/errors"
 )
@@ -13,6 +14,7 @@ type URLInfoProvider interface {
 	ParameterInfoProvider
 
 	GetHost() string
+	GetNotVersionedURL() string
 }
 
 //
@@ -53,6 +55,19 @@ func (c *URLInfo) validate() error {
 	c.host = urlInfo.Host
 
 	return nil
+}
+
+//
+// GetNotVersionedURL returns a URL value without version ending part
+//
+func (c *URLInfo) GetNotVersionedURL() (string, error) {
+	re := regexp.MustCompile("(.*)/v[0-9]*")
+	match := re.FindStringSubmatch(c.GetValue())
+	if nil == match {
+		return "", ErrURLDoesNotContainVersionPart
+	}
+
+	return match[1], nil
 }
 
 //

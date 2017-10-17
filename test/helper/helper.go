@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	base_errors "github.com/ameteiko/errors"
+	baseErrors "github.com/ameteiko/errors"
 	"github.com/ameteiko/golang-kit/errors"
 )
 
@@ -13,7 +13,7 @@ import (
 // contains the error of type expectedError.
 //
 func AssertError(t *testing.T, expectedError error, err error) bool {
-	typedError := base_errors.Cause(err, (*errors.ErrorInfoProvider)(nil))
+	typedError := baseErrors.Cause(err, (*errors.ErrorInfoProvider)(nil))
 	if nil == typedError || typedError.Error() != expectedError.Error() {
 		msg := fmt.Sprintf("Error type is not as expected.\n"+
 			"expected: %s\n"+
@@ -30,7 +30,7 @@ func AssertError(t *testing.T, expectedError error, err error) bool {
 // contains the error of type expectedError.
 //
 func AssertHTTPError(t *testing.T, expectedError error, err error) bool {
-	typedError := base_errors.Cause(err, (*errors.HTTPErrorInfoProvider)(nil))
+	typedError := baseErrors.Cause(err, (*errors.HTTPErrorInfoProvider)(nil))
 	if nil == typedError || typedError.Error() != expectedError.Error() {
 		msg := fmt.Sprintf("Error type is not as expected.\n"+
 			"expected: %s\n"+

@@ -275,7 +275,7 @@ func (c *Config) GetHTTPWriteTimeout() time.Duration {
 // GetCards4ReadURL returns Virgil Cards service read URL.
 //
 func (c *Config) GetCards4ReadURL() (URLInfoProvider, error) {
-	url, ok := c.parameters[Cards4ReadURL].(LogInfoProvider)
+	url, ok := c.parameters[Cards4ReadURL].(URLInfoProvider)
 	if !ok {
 		return nil, errors.WithMessage(
 			errors.ErrGetMisregisteredConfigParameter,

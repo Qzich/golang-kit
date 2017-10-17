@@ -16,7 +16,7 @@ import (
 //
 type Service struct {
 	log              log.Logger
-	router           HTTPHandlerProvider
+	router           HandlerProvider
 	httpAddress      string
 	httpReadTimeout  time.Duration
 	httpWriteTimeout time.Duration
@@ -26,7 +26,7 @@ type Service struct {
 // NewService returns a new service instance.
 //
 func NewService(
-	router HTTPHandlerProvider,
+	router HandlerProvider,
 	log log.Logger,
 	httpAddress string,
 	httpReadTimeout time.Duration,

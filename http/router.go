@@ -10,9 +10,9 @@ import (
 )
 
 //
-// HTTPHandlerProvider interface provides an HTTP handler.
+// HandlerProvider interface provides an HTTP handler.
 //
-type HTTPHandlerProvider interface {
+type HandlerProvider interface {
 	GetHTTPHandler() http.Handler
 }
 
@@ -69,28 +69,28 @@ func NewRouter(log log.Logger) *Router {
 // Get registers an HTTP GET httpHandler.
 //
 func (r *Router) Get(path string, handler RequestHandler) {
-	r.httpHandler.Get(path, r.wrapHTTPHandler(handler))
+	r.httpHandler.Get(path, r.WrapHTTPHandler(handler))
 }
 
 //
 // Post registers an HTTP POST httpHandler.
 //
 func (r *Router) Post(path string, handler RequestHandler) {
-	r.httpHandler.Post(path, r.wrapHTTPHandler(handler))
+	r.httpHandler.Post(path, r.WrapHTTPHandler(handler))
 }
 
 //
 // Put registers an HTTP PUT httpHandler.
 //
 func (r *Router) Put(path string, handler RequestHandler) {
-	r.httpHandler.Post(path, r.wrapHTTPHandler(handler))
+	r.httpHandler.Post(path, r.WrapHTTPHandler(handler))
 }
 
 //
 // Delete registers an HTTP DELETE httpHandler.
 //
 func (r *Router) Delete(path string, handler RequestHandler) {
-	r.httpHandler.Post(path, r.wrapHTTPHandler(handler))
+	r.httpHandler.Post(path, r.WrapHTTPHandler(handler))
 }
 
 //
@@ -102,11 +102,11 @@ func (r *Router) GetHTTPHandler() http.Handler {
 }
 
 //
-// wrapHTTPHandler wraps an HTTP request handler with a universal wrapper.
+// WrapHTTPHandler wraps an HTTP request handler with a universal wrapper.
 //
 // Helper function to read the request body if any and to pass it to the HTTP httpHandler.
 //
-func (r *Router) wrapHTTPHandler(handler RequestHandler) http.HandlerFunc {
+func (r *Router) WrapHTTPHandler(handler RequestHandler) http.HandlerFunc {
 
 	return func(response http.ResponseWriter, request *http.Request) {
 
