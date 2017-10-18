@@ -14,7 +14,7 @@ type URLInfoProvider interface {
 	ParameterInfoProvider
 
 	GetHost() string
-	GetNotVersionedURL() string
+	GetNotVersionedURL() (string, error)
 }
 
 //
