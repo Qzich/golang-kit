@@ -3,6 +3,8 @@ package errors
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/ameteiko/errors"
 )
 
 //
@@ -28,22 +30,41 @@ type HTTPError struct {
 //
 // NewHTTP400Error returns an instance of the HTTP 400 (Bad request) error.
 //
-func NewHTTP400Error(code int, message string) HTTPError {
-	return HTTPError{http.StatusBadRequest, code, message}
+func NewHTTP400Error(code int, message string) error {
+
+	return errors.WithStack(HTTPError{http.StatusBadRequest, code, message})
+}
+
+//
+// NewHTTP401Error returns an instance of the HTTP 401 (Unauthorized) error.
+//
+func NewHTTP401Error(code int, message string) error {
+
+	return errors.WithStack(HTTPError{http.StatusUnauthorized, code, message})
 }
 
 //
 // NewHTTP403Error returns an instance of the HTTP 403 (Forbidden) error.
 //
-func NewHTTP403Error(code int, message string) HTTPError {
-	return HTTPError{http.StatusForbidden, code, message}
+func NewHTTP403Error(code int, message string) error {
+
+	return errors.WithStack(HTTPError{http.StatusForbidden, code, message})
+}
+
+//
+// NewHTTP404Error returns an instance of the HTTP 404 (Not Found) error.
+//
+func NewHTTP404Error(code int, message string) error {
+
+	return errors.WithStack(HTTPError{http.StatusNotFound, code, message})
 }
 
 //
 // NewHTTP500Error returns an instance of the HTTP 500 (Internal server error) error.
 //
-func NewHTTP500Error(code int, message string) HTTPError {
-	return HTTPError{http.StatusInternalServerError, code, message}
+func NewHTTP500Error(code int, message string) error {
+
+	return errors.WithStack(HTTPError{http.StatusInternalServerError, code, message})
 }
 
 //

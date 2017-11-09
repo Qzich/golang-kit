@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"github.com/dgrijalva/jwt-go"
+	"strings"
 
 	"github.com/ameteiko/golang-kit/errors"
 	"gopkg.in/virgil.v4/virgilcrypto"
@@ -18,7 +19,7 @@ const (
 // init registers Virgil Security token validator.
 //
 func init() {
-	jwt.RegisterSigningMethod(VirgilSigningAlgorithm, func() jwt.SigningMethod { return new(VirgilSigner) })
+	jwt.RegisterSigningMethod(VirgilSigningAlgorithm, GetVirgilSigningMethod)
 }
 
 //
@@ -46,10 +47,13 @@ func (s *VirgilSigner) Verify(token, signature string, key interface{}) error {
 			ErrSignatureDecode,
 		)
 	}
-	if ok, err = virgilcrypto.DefaultCrypto.Verify([]byte(token), decodedSignature, publicKey); !ok || nil != err {
+
+	parts := strings.Split(token, ".")
+	signedData := strings.Join(parts[0:2], ".")
+	if ok, err = virgilcrypto.DefaultCrypto.Verify([]byte(signedData), decodedSignature, publicKey); !ok || nil != err {
 		if !ok {
 			return errors.WithMessage(
-				jwt.ErrSignatureInvalid,
+				ErrSignatureIsInvalid,
 				"kit.jwt@VirgilSigner.Verify [signature value is invalid]",
 			)
 		}
@@ -94,4 +98,12 @@ func (s *VirgilSigner) Sign(token string, key interface{}) (string, error) {
 func (s *VirgilSigner) Alg() string {
 
 	return VirgilSigningAlgorithm
+}
+
+//
+// GetVirgilSigningMethod returns an instance of Virgil signing method.
+//
+func GetVirgilSigningMethod() jwt.SigningMethod {
+
+	return new(VirgilSigner)
 }

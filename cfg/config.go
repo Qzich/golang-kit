@@ -34,6 +34,8 @@ const (
 	Cards4PublicKey = "CARDS4_PUBLIC_KEY"
 	Cards4ReadURL   = "CARDS4_READ_URL"
 	Cards4CardID    = "CARDS4_CARD_ID"
+
+	Cards5URL = "CARDS5_URL"
 )
 
 //
@@ -121,6 +123,11 @@ type CustomParamsConfiger interface {
 // CommonsConfiger returns all the common application parameters.
 //
 type CommonsConfiger interface {
+	//
+	// GetCards5URL returns Cards v5 url.
+	//
+	GetCards5URL() (URLInfoProvider, error)
+
 	//
 	// GetCards4ReadURL returns Cards v4 read url.
 	//
@@ -269,6 +276,21 @@ func (c *Config) GetHTTPReadTimeout() time.Duration {
 func (c *Config) GetHTTPWriteTimeout() time.Duration {
 
 	return c.httpWriteTimeout
+}
+
+//
+// GetCards5URL returns Virgil Cards service URL.
+//
+func (c *Config) GetCards5URL() (URLInfoProvider, error) {
+	url, ok := c.parameters[Cards5URL].(URLInfoProvider)
+	if !ok {
+		return nil, errors.WithMessage(
+			errors.ErrGetMisregisteredConfigParameter,
+			"kit-cfg@Config.GetCards5URL",
+		)
+	}
+
+	return url, nil
 }
 
 //
@@ -429,6 +451,8 @@ func (c *Config) validateParameters() error {
 func getConfigParameterEntry(parameter Parameter) ParameterInfoProvider {
 	switch parameter {
 	case DevPortalURL:
+		return newURLParameter(parameter)
+	case Cards5URL:
 		return newURLParameter(parameter)
 	case Cards4ReadURL:
 		return newURLParameter(parameter)

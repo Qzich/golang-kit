@@ -83,7 +83,7 @@ func (c *DIContainer) RegisterDependency(
 			Close: disposer,
 		})
 	if nil != err {
-		return errors.WithMessage(err, `error on dependency (%s) registration`, depName)
+		return errors.WithMessage(err, `kit@cfg.DIContainer:RegisterDependency [error on dependency (%s) registration]`, depName)
 	}
 
 	return nil

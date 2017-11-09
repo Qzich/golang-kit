@@ -1,5 +1,9 @@
 package errors
 
+import (
+	"github.com/ameteiko/errors"
+)
+
 //
 // ErrorInfoProvider is an Error interface.
 //
@@ -20,8 +24,9 @@ type Error struct {
 // NewError returns a new Error instance.
 // Need to return an object not a link for it because of typed checks.
 //
-func NewError(message string) Error {
-	return Error{message: message}
+func NewError(message string) error {
+
+	return errors.WrapError(Error{message: message})
 }
 
 //

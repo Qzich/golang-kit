@@ -16,7 +16,8 @@ func ReportStartupErrorAndExit(err error) {
 unable to start the application due to:
 %s
 %s
-`, separationString, err.Error(), separationString)
+%+v
+`, separationString, err.Error(), separationString, err)
 
 	os.Stderr.Write([]byte(message))
 	os.Exit(1)

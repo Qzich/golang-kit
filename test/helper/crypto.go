@@ -16,3 +16,12 @@ func GenerateKeys() (virgilcrypto.PrivateKey, virgilcrypto.PublicKey) {
 
 	return kp.PrivateKey(), kp.PublicKey()
 }
+
+//
+// Sign returns the data signature.
+//
+func Sign(data []byte, key virgilcrypto.PrivateKey) []byte {
+	s, _ := virgilcrypto.Signer.Sign(data, key)
+
+	return s
+}

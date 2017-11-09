@@ -9,8 +9,14 @@ import (
 //
 // WriteResponseError writes the information about the error to the response.
 //
-func WriteResponseError(responseWriter http.ResponseWriter, e errors.HTTPErrorInfoProvider) {
+func WriteResponseError(responseWriter http.ResponseWriter, err error) {
+	httpError, ok := err.(errors.HTTPErrorInfoProvider)
+	if ok {
+		responseWriter.WriteHeader(httpError.GetHTTPStatus())
+	} else {
+		responseWriter.WriteHeader(http.StatusBadRequest)
+	}
+
 	responseWriter.Header().Set("Content-Type", "application/json")
-	responseWriter.WriteHeader(e.GetHTTPStatus())
-	responseWriter.Write([]byte(e.Error()))
+	responseWriter.Write([]byte(err.Error()))
 }

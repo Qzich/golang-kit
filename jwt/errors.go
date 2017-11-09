@@ -6,4 +6,5 @@ import (
 
 var (
 	ErrSignatureDecode = errors.NewError("signature decoding error")
+	ErrSignatureIsInvalid = errors.NewError("signature is invalid")
 )
