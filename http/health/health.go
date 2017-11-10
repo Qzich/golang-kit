@@ -2,6 +2,8 @@
 // Package health provides functionality to run registered application dependencies checks and to provide an HTTP
 // response.
 //
+// TODO: Add dependency ignoring option to prevent cyclic resolve.
+//
 package health
 
 //
@@ -13,7 +15,9 @@ type DependencyChecker func() error
 // Dependency name constants.
 //
 const (
-	DependencyCassandra    = "cassandra"
-	DependencyVirgilCrypto = "virgil_crypto"
-	DependencyRedis        = "redis"
+	DependencyCassandra = "cassandra"
+	DependencyRedis     = "redis"
+
+	DependencyVirgilCrypto  = "virgil_crypto"
+	DependencyVirgilCardsV5 = "virgil_cards_v5"
 )
