@@ -1,14 +1,4 @@
-//
-// Package version provides all meaningful information about the application build and version.
-//
-package version
-
-//
-// Data parsing constants
-//
-const (
-	TravisBuildDateFormat = "200601021504"
-)
+package health
 
 //
 // BuildVersionProvider provides with build info.
@@ -39,10 +29,10 @@ type BuildVersionProvider interface {
 // BuildVersion provides all necessary information about the build version.
 //
 type BuildVersion struct {
-	tag    string
-	branch string
-	commit string
-	date   string
+	Tag    string `json:"tag,omitempty"`
+	Branch string `json:"branch"`
+	Commit string `json:"commit"`
+	Date   string `json:"date"`
 }
 
 //
@@ -51,10 +41,10 @@ type BuildVersion struct {
 //
 func NewBuildVersion(tag, branch, commit, date string) BuildVersion {
 	return BuildVersion{
-		tag:    tag,
-		branch: branch,
-		commit: commit,
-		date:   date,
+		Tag:    tag,
+		Branch: branch,
+		Commit: commit,
+		Date:   date,
 	}
 }
 
@@ -63,7 +53,7 @@ func NewBuildVersion(tag, branch, commit, date string) BuildVersion {
 //
 func (v BuildVersion) GetTag() string {
 
-	return v.tag
+	return v.Tag
 }
 
 //
@@ -71,7 +61,7 @@ func (v BuildVersion) GetTag() string {
 //
 func (v BuildVersion) GetBranch() string {
 
-	return v.branch
+	return v.Branch
 }
 
 //
@@ -79,7 +69,7 @@ func (v BuildVersion) GetBranch() string {
 //
 func (v BuildVersion) GetCommit() string {
 
-	return v.commit
+	return v.Commit
 }
 
 //
@@ -87,5 +77,5 @@ func (v BuildVersion) GetCommit() string {
 //
 func (v BuildVersion) GetDate() string {
 
-	return v.date
+	return v.Date
 }
