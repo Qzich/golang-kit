@@ -2,7 +2,6 @@ package jwt
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"strings"
 
 	"github.com/ameteiko/golang-kit/errors"
 	"gopkg.in/virgil.v4/virgilcrypto"
@@ -31,7 +30,7 @@ type VirgilSigner struct{}
 // Verify performs token verification.
 // Expects key to be virgilcrypto.PublicKey
 //
-func (s *VirgilSigner) Verify(token, signature string, key interface{}) error {
+func (s *VirgilSigner) Verify(signingString, signature string, key interface{}) error {
 	publicKey, ok := key.(virgilcrypto.PublicKey)
 	if !ok {
 		return errors.WithMessage(
@@ -48,9 +47,7 @@ func (s *VirgilSigner) Verify(token, signature string, key interface{}) error {
 		)
 	}
 
-	parts := strings.Split(token, ".")
-	signedData := strings.Join(parts[0:2], ".")
-	if ok, err = virgilcrypto.DefaultCrypto.Verify([]byte(signedData), decodedSignature, publicKey); !ok || nil != err {
+	if ok, err = virgilcrypto.DefaultCrypto.Verify([]byte(signingString), decodedSignature, publicKey); !ok || nil != err {
 		if !ok {
 			return errors.WithMessage(
 				ErrSignatureIsInvalid,
@@ -71,7 +68,7 @@ func (s *VirgilSigner) Verify(token, signature string, key interface{}) error {
 // Sign performs token signing.
 // Expects key to be virgilcrypto.PrivateKey instance.
 //
-func (s *VirgilSigner) Sign(token string, key interface{}) (string, error) {
+func (s *VirgilSigner) Sign(signingString string, key interface{}) (string, error) {
 	privateKey, ok := key.(virgilcrypto.PrivateKey)
 	if !ok {
 		return "", errors.WithMessage(
@@ -81,7 +78,7 @@ func (s *VirgilSigner) Sign(token string, key interface{}) (string, error) {
 
 	}
 
-	signature, err := virgilcrypto.DefaultCrypto.Sign([]byte(token), privateKey)
+	signature, err := virgilcrypto.DefaultCrypto.Sign([]byte(signingString), privateKey)
 	if nil != err {
 		return "", errors.WithMessage(
 			err,

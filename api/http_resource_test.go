@@ -70,7 +70,7 @@ func TestGetHeadersForAnEmptyHeader(t *testing.T) {
 	httpHeaders := r.GetHeaders()
 
 	assert.Equal(t, 1, len(httpHeaders))
-	assert.Empty(t, httpHeaders[""])
+	assert.Empty(t, httpHeaders[""][0])
 }
 
 //
@@ -85,5 +85,5 @@ func TestGetHeadersForAHeader(t *testing.T) {
 	httpHeaders := r.GetHeaders()
 
 	assert.Equal(t, 1, len(httpHeaders))
-	assert.Equal(t, headerValue, httpHeaders[headerName])
+	assert.Equal(t, headerValue, httpHeaders[headerName][0])
 }
