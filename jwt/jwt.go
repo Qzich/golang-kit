@@ -1,3 +1,32 @@
+// Package jwt provides and registers a custom Virgil JWT signing method.
+//
+// Usage:
+//
+//      import (
+//			"github.com/dgrijalva/jwt-go"
+//			"gopkg.in/virgil.v4/virgilcrypto"
+//			virgilJWT github.com/ameteiko/golang-kit/jwt"
+// 		)
+//
+// 		// Generate new custom token
+//		keyPair, _ := virgilcrypto.NewKeypair()
+//		tokenClaims := jwt.MapClaims{"foo": "bar"}
+//		t := jwt.NewWithClaims(virgilJWT.GetVirgilSigningMethod(), tokenClaims)
+//		tokenString, _ := t.SignedString(keyPair.PrivateKey())
+//		println(tokenString)
+//
+//		// Validate the token
+//		c := new(jwt.MapClaims)
+// 		tt, _ := jwt.ParseWithClaims(
+// 			tokenString,
+// 			new(jwt.MapClaims),
+// 			func(*jwt.Token) (interface{}, error) {
+// 				return keyPair.PublicKey(), nil
+// 			},
+// 		)
+//		println(tt.Valid == true)
+//
+//
 package jwt
 
 import (
