@@ -43,6 +43,9 @@ const (
 	VirgilSigningAlgorithm = "VIRGIL"
 )
 
+// Virgil signing method instance
+var VirgilSigningMethod = new(virgilSigner)
+
 //
 // init registers Virgil Security token validator.
 //
@@ -51,20 +54,20 @@ func init() {
 }
 
 //
-// VirgilSigner is a Virgil Security implementation for the token signing.
+// virgilSigner is a Virgil Security implementation for the token signing.
 //
-type VirgilSigner struct{}
+type virgilSigner struct{}
 
 //
 // Verify performs token verification.
 // Expects key to be virgilcrypto.PublicKey
 //
-func (s *VirgilSigner) Verify(signingString, signature string, key interface{}) error {
+func (s *virgilSigner) Verify(signingString, signature string, key interface{}) error {
 	publicKey, ok := key.(virgilcrypto.PublicKey)
 	if !ok {
 		return errors.WithMessage(
 			jwt.ErrInvalidKeyType,
-			"kit.jwt@VirgilSigner.Verify [key instance is not a virgilcrypto.PublicKey]",
+			"kit.jwt@virgilSigner.Verify [key instance is not a virgilcrypto.PublicKey]",
 		)
 	}
 
@@ -80,13 +83,13 @@ func (s *VirgilSigner) Verify(signingString, signature string, key interface{}) 
 		if !ok {
 			return errors.WithMessage(
 				ErrSignatureIsInvalid,
-				"kit.jwt@VirgilSigner.Verify [signature value is invalid]",
+				"kit.jwt@virgilSigner.Verify [signature value is invalid]",
 			)
 		}
 
 		return errors.WithMessage(
 			err,
-			"kit.jwt@VirgilSigner.Verify [signature verification failed]",
+			"kit.jwt@virgilSigner.Verify [signature verification failed]",
 		)
 	}
 
@@ -97,12 +100,12 @@ func (s *VirgilSigner) Verify(signingString, signature string, key interface{}) 
 // Sign performs token signing.
 // Expects key to be virgilcrypto.PrivateKey instance.
 //
-func (s *VirgilSigner) Sign(signingString string, key interface{}) (string, error) {
+func (s *virgilSigner) Sign(signingString string, key interface{}) (string, error) {
 	privateKey, ok := key.(virgilcrypto.PrivateKey)
 	if !ok {
 		return "", errors.WithMessage(
 			jwt.ErrInvalidKeyType,
-			"kit.jwt@VirgilSigner.Sign [key instance is not a virgilcrypto.PrivateKey]",
+			"kit.jwt@virgilSigner.Sign [key instance is not a virgilcrypto.PrivateKey]",
 		)
 
 	}
@@ -111,7 +114,7 @@ func (s *VirgilSigner) Sign(signingString string, key interface{}) (string, erro
 	if nil != err {
 		return "", errors.WithMessage(
 			err,
-			"kit.jwt@VirgilSigner.Sign [signing process failed]",
+			"kit.jwt@virgilSigner.Sign [signing process failed]",
 		)
 	}
 
@@ -121,7 +124,7 @@ func (s *VirgilSigner) Sign(signingString string, key interface{}) (string, erro
 //
 // Alg returns signer algorithm name.
 //
-func (s *VirgilSigner) Alg() string {
+func (s *virgilSigner) Alg() string {
 
 	return VirgilSigningAlgorithm
 }
@@ -131,5 +134,5 @@ func (s *VirgilSigner) Alg() string {
 //
 func GetVirgilSigningMethod() jwt.SigningMethod {
 
-	return new(VirgilSigner)
+	return VirgilSigningMethod
 }
